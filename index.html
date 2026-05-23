@@ -1,69 +1,330 @@
 <!DOCTYPE html>
-<html>
+<html lang="id">
 <head>
-    <title>Test Supabase</title>
-    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Aplikasi Data - JSONBin + GitHub Pages</title>
+    <style>
+        * {
+            box-sizing: border-box;
+        }
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            max-width: 600px;
+            margin: 0 auto;
+            padding: 20px;
+            background: #f5f5f5;
+        }
+        .container {
+            background: white;
+            border-radius: 10px;
+            padding: 25px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        h1 {
+            color: #333;
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        input, textarea {
+            width: 100%;
+            padding: 12px;
+            margin: 8px 0 16px 0;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            font-size: 16px;
+        }
+        textarea {
+            resize: vertical;
+            min-height: 80px;
+        }
+        button {
+            background: #007bff;
+            color: white;
+            border: none;
+            padding: 12px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+            margin-right: 10px;
+            margin-bottom: 10px;
+        }
+        button:hover {
+            background: #0056b3;
+        }
+        button.delete-btn {
+            background: #dc3545;
+        }
+        button.delete-btn:hover {
+            background: #c82333;
+        }
+        .hasil-card {
+            background: #f8f9fa;
+            border-radius: 8px;
+            padding: 15px;
+            margin-top: 20px;
+            border-left: 4px solid #007bff;
+        }
+        .data-item {
+            background: white;
+            border: 1px solid #eee;
+            border-radius: 5px;
+            padding: 12px;
+            margin-bottom: 10px;
+        }
+        .data-item strong {
+            color: #007bff;
+        }
+        .data-item small {
+            color: #999;
+            font-size: 12px;
+        }
+        .loading {
+            text-align: center;
+            color: #666;
+            padding: 20px;
+        }
+        .success {
+            color: green;
+            text-align: center;
+        }
+        .error {
+            color: red;
+            text-align: center;
+        }
+        hr {
+            margin: 20px 0;
+        }
+    </style>
 </head>
 <body>
-    <h1>Test Supabase Connection</h1>
-    <div id="log"></div>
+    <div class="container">
+        <h1>📝 Aplikasi Catatan</h1>
+        
+        <div>
+            <input type="text" id="nama" placeholder="Nama Anda">
+            <textarea id="pesan" placeholder="Tulis pesan atau catatan..."></textarea>
+            <button onclick="simpanData()">💾 Simpan Catatan</button>
+            <button onclick="ambilSemuaData()">🔄 Muat Ulang</button>
+            <button onclick="hapusSemuaData()" class="delete-btn">🗑️ Hapus Semua</button>
+        </div>
+        
+        <hr>
+        
+        <div id="hasil">
+            <div class="loading">📡 Mengambil data dari cloud...</div>
+        </div>
+    </div>
 
     <script>
-        const log = document.getElementById('log');
+        // ✅ SUDAH DIPERBAIKI - Ganti dengan data JSONBin Anda
+        const API_KEY = '$2a$10$mjq9GqT9KPSNzxJcZzHxxO0LSiDadJfU7fWheRcEQ389dEDUetNfG';
+        const BIN_ID = '6a11c37bee5a733b12094d01';  // ✅ Hanya ID saja, bukan URL lengkap!
         
-        function addLog(msg, isError = false) {
-            const p = document.createElement('p');
-            p.textContent = msg;
-            p.style.color = isError ? 'red' : 'green';
-            log.appendChild(p);
-            console.log(msg);
-        }
+        // URL API JSONBin (benar)
+        const API_URL = `https://api.jsonbin.io/v3/b/${BIN_ID}`;
         
-        addLog('1. Memulai test...');
-        
-        const SUPABASE_URL = 'https://fettznnppsfxyaogvgo.supabase.co';
-        const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImZldHR6bm5wcHNmeHlhb2d2Z2JvIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzk1MTAyMTAsImV4cCI6MjA5NTA4NjIxMH0.W3a3jWj_vpzCvHY6xVeS6zGdUvleY1n1c1hjrNHM824';
-        
-        addLog('2. URL: ' + SUPABASE_URL);
-        addLog('3. Key: ' + SUPABASE_ANON_KEY.substring(0, 30) + '...');
-        
-        try {
-            const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
-            addLog('4. Supabase client created');
+        // Fungsi untuk menyimpan data baru
+        async function simpanData() {
+            const nama = document.getElementById('nama').value.trim();
+            const pesan = document.getElementById('pesan').value.trim();
             
-            async function testConnection() {
-                addLog('5. Mencoba koneksi ke database...');
-                
-                const { data, error } = await supabase
-                    .from('messages')
-                    .select('*')
-                    .limit(1);
-                
-                if (error) {
-                    addLog('6. ERROR: ' + error.message, true);
-                    addLog('7. Detail: ' + JSON.stringify(error), true);
-                } else {
-                    addLog('6. SUCCESS! Terhubung ke database', false);
-                    addLog('7. Data: ' + JSON.stringify(data), false);
-                    
-                    // Coba insert
-                    addLog('8. Mencoba insert pesan...');
-                    const { error: insertError } = await supabase
-                        .from('messages')
-                        .insert([{ username: 'Tester', message: 'Test connection at ' + new Date().toLocaleTimeString() }]);
-                    
-                    if (insertError) {
-                        addLog('9. Insert ERROR: ' + insertError.message, true);
-                    } else {
-                        addLog('9. Insert SUCCESS!', false);
-                    }
-                }
+            if (!nama || !pesan) {
+                alert('Mohon isi nama dan pesan terlebih dahulu!');
+                return;
             }
             
-            testConnection();
-        } catch(e) {
-            addLog('ERROR: ' + e.message, true);
+            // Ambil data yang sudah ada
+            let dataSaatIni = await ambilDataDariCloud();
+            
+            // Buat entri baru
+            const entriBaru = {
+                id: Date.now(),
+                nama: nama,
+                pesan: pesan,
+                waktu: new Date().toLocaleString('id-ID')
+            };
+            
+            // Tambahkan ke array data
+            if (!dataSaatIni.data || !Array.isArray(dataSaatIni.data)) {
+                dataSaatIni = { data: [] };
+            }
+            dataSaatIni.data.unshift(entriBaru);
+            
+            // Simpan kembali ke cloud
+            try {
+                const response = await fetch(API_URL, {
+                    method: 'PUT',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-Master-Key': API_KEY
+                    },
+                    body: JSON.stringify(dataSaatIni)
+                });
+                
+                if (response.ok) {
+                    document.getElementById('nama').value = '';
+                    document.getElementById('pesan').value = '';
+                    tampilkanPesan('✅ Catatan berhasil disimpan!', 'success');
+                    await ambilSemuaData();
+                } else {
+                    const errorData = await response.text();
+                    throw new Error(`Gagal menyimpan: ${response.status} - ${errorData}`);
+                }
+            } catch(error) {
+                tampilkanPesan('❌ Error: ' + error.message, 'error');
+                console.error('Detail error:', error);
+            }
         }
+        
+        // Fungsi untuk mengambil semua data dari cloud
+        async function ambilDataDariCloud() {
+            try {
+                const response = await fetch(`${API_URL}/latest`, {
+                    headers: { 'X-Master-Key': API_KEY }
+                });
+                
+                if (!response.ok) {
+                    // Jika bin kosong atau belum ada struktur data
+                    if (response.status === 404) {
+                        return { data: [] };
+                    }
+                    throw new Error(`HTTP ${response.status}`);
+                }
+                
+                const result = await response.json();
+                return result.record || { data: [] };
+            } catch(error) {
+                console.error('Error ambil data:', error);
+                return { data: [] };
+            }
+        }
+        
+        // Fungsi untuk menampilkan semua data
+        async function ambilSemuaData() {
+            const hasilDiv = document.getElementById('hasil');
+            hasilDiv.innerHTML = '<div class="loading">📡 Memuat data...</div>';
+            
+            const dataCloud = await ambilDataDariCloud();
+            const dataList = dataCloud.data || [];
+            
+            if (dataList.length === 0) {
+                hasilDiv.innerHTML = `
+                    <div class="hasil-card">
+                        <p style="text-align:center; color:#666;">✨ Belum ada catatan. Buat catatan pertama Anda! ✨</p>
+                    </div>
+                `;
+                return;
+            }
+            
+            let html = '';
+            dataList.forEach(item => {
+                html += `
+                    <div class="data-item">
+                        <strong>👤 ${escapeHtml(item.nama)}</strong><br>
+                        <p>📝 ${escapeHtml(item.pesan)}</p>
+                        <small>🕐 ${item.waktu}</small>
+                        <br>
+                        <button onclick="hapusSatuData(${item.id})" style="background:#dc3545; padding:5px 10px; font-size:12px; margin-top:8px;">🗑️ Hapus</button>
+                    </div>
+                `;
+            });
+            
+            hasilDiv.innerHTML = `
+                <div class="hasil-card">
+                    <strong>📋 Total Catatan: ${dataList.length}</strong>
+                    ${html}
+                </div>
+            `;
+        }
+        
+        // Fungsi hapus satu data
+        async function hapusSatuData(id) {
+            if (!confirm('Yakin ingin menghapus catatan ini?')) return;
+            
+            let dataSaatIni = await ambilDataDariCloud();
+            dataSaatIni.data = dataSaatIni.data.filter(item => item.id !== id);
+            
+            try {
+                const response = await fetch(API_URL, {
+                    method: 'PUT',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-Master-Key': API_KEY
+                    },
+                    body: JSON.stringify(dataSaatIni)
+                });
+                
+                if (response.ok) {
+                    tampilkanPesan('✅ Catatan dihapus!', 'success');
+                    await ambilSemuaData();
+                } else {
+                    throw new Error('Gagal menghapus');
+                }
+            } catch(error) {
+                tampilkanPesan('❌ Error: ' + error.message, 'error');
+            }
+        }
+        
+        // Fungsi hapus semua data
+        async function hapusSemuaData() {
+            if (!confirm('⚠️ PERINGATAN: Ini akan menghapus SEMUA catatan! Lanjutkan?')) return;
+            
+            const dataKosong = { data: [] };
+            
+            try {
+                const response = await fetch(API_URL, {
+                    method: 'PUT',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-Master-Key': API_KEY
+                    },
+                    body: JSON.stringify(dataKosong)
+                });
+                
+                if (response.ok) {
+                    tampilkanPesan('🗑️ Semua catatan telah dihapus!', 'success');
+                    await ambilSemuaData();
+                } else {
+                    throw new Error('Gagal menghapus');
+                }
+            } catch(error) {
+                tampilkanPesan('❌ Error: ' + error.message, 'error');
+            }
+        }
+        
+        // Fungsi tampilkan pesan
+        function tampilkanPesan(pesan, tipe) {
+            const hasilDiv = document.getElementById('hasil');
+            const pesanDiv = document.createElement('div');
+            pesanDiv.className = tipe;
+            pesanDiv.style.padding = '10px';
+            pesanDiv.style.marginTop = '10px';
+            pesanDiv.style.borderRadius = '5px';
+            pesanDiv.style.backgroundColor = tipe === 'success' ? '#d4edda' : '#f8d7da';
+            pesanDiv.style.border = tipe === 'success' ? '1px solid #c3e6cb' : '1px solid #f5c6cb';
+            pesanDiv.innerHTML = pesan;
+            
+            hasilDiv.insertBefore(pesanDiv, hasilDiv.firstChild);
+            
+            setTimeout(() => {
+                pesanDiv.remove();
+            }, 3000);
+        }
+        
+        // Fungsi keamanan
+        function escapeHtml(str) {
+            if (!str) return '';
+            return str
+                .replace(/&/g, '&amp;')
+                .replace(/</g, '&lt;')
+                .replace(/>/g, '&gt;')
+                .replace(/"/g, '&quot;')
+                .replace(/'/g, '&#39;');
+        }
+        
+        // Load data saat halaman dibuka
+        ambilSemuaData();
     </script>
 </body>
 </html>
