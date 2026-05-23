@@ -148,7 +148,7 @@
 </head>
 <body>
     <div class="container" id="app">
-        <!-- Tempat untuk menampilkan konten yang berbeda (login atau aplikasi) -->
+        <div class="loading">Memuat...</div>
     </div>
 
     <script>
@@ -158,11 +158,63 @@
         const API_URL = `https://api.jsonbin.io/v3/b/${BIN_ID}`;
         
         // ============ VARIABEL GLOBAL ============
-        let currentUser = null;  // Menyimpan data user yang sedang login
+        let currentUser = null;
         
-        // ============ FUNGSI UTAMA ============
+        // ============ FUNGSI UNTUK AMBIL/SIMPAN DATA KE JSONBIN ============
         
-        // Cek apakah user sudah login sebelumnya (dari localStorage)
+        // Ambil semua data dari JSONBin (users + notes)
+        async function ambilSemuaData() {
+            try {
+                const response = await fetch(`${API_URL}/latest`, {
+                    headers: { 'X-Master-Key': API_KEY }
+                });
+                
+                if (!response.ok) {
+                    // Jika bin kosong, buat struktur default
+                    return { users: [], notes: {} };
+                }
+                
+                const result = await response.json();
+                const data = result.record;
+                
+                // Pastikan struktur data lengkap
+                if (!data.users) data.users = [];
+                if (!data.notes) data.notes = {};
+                
+                return data;
+            } catch(error) {
+                console.error('Error ambil data:', error);
+                return { users: [], notes: {} };
+            }
+        }
+        
+        // Simpan semua data ke JSONBin
+        async function simpanSemuaData(data) {
+            try {
+                const response = await fetch(API_URL, {
+                    method: 'PUT',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-Master-Key': API_KEY
+                    },
+                    body: JSON.stringify(data)
+                });
+                
+                if (!response.ok) {
+                    const errorText = await response.text();
+                    console.error('Response error:', errorText);
+                    return false;
+                }
+                
+                return true;
+            } catch(error) {
+                console.error('Error simpan data:', error);
+                return false;
+            }
+        }
+        
+        // ============ FUNGSI LOGIN/LOGOUT ============
+        
         function cekSession() {
             const savedUser = localStorage.getItem('currentUser');
             if (savedUser) {
@@ -173,9 +225,10 @@
             }
         }
         
-        // Fungsi login
         async function login() {
             const namaInput = document.getElementById('loginNama');
+            if (!namaInput) return;
+            
             const nama = namaInput.value.trim();
             
             if (!nama) {
@@ -183,9 +236,9 @@
                 return;
             }
             
-            // Cek apakah nama sudah terdaftar di database
-            const semuaUser = await ambilSemuaUser();
-            let user = semuaUser.find(u => u.nama.toLowerCase() === nama.toLowerCase());
+            // Ambil semua data dari JSONBin
+            const semuaData = await ambilSemuaData();
+            let user = semuaData.users.find(u => u.nama.toLowerCase() === nama.toLowerCase());
             
             if (!user) {
                 // Buat user baru
@@ -195,22 +248,20 @@
                     createdAt: new Date().toLocaleString('id-ID')
                 };
                 
-                // Simpan user baru ke database
-                semuaUser.push(user);
-                await simpanSemuaUser(semuaUser);
+                semuaData.users.push(user);
+                const berhasil = await simpanSemuaData(semuaData);
+                
+                if (!berhasil) {
+                    alert('Gagal menyimpan data user! Coba lagi.');
+                    return;
+                }
             }
             
-            // Set current user
             currentUser = user;
-            
-            // Simpan ke localStorage agar tidak perlu login lagi
             localStorage.setItem('currentUser', JSON.stringify(user));
-            
-            // Tampilkan aplikasi utama
             tampilkanAplikasi();
         }
         
-        // Fungsi logout
         function logout() {
             if (confirm('Yakin ingin logout?')) {
                 currentUser = null;
@@ -219,119 +270,29 @@
             }
         }
         
-        // Ambil semua user dari JSONBin
-        async function ambilSemuaUser() {
-            try {
-                const response = await fetch(`${API_URL}/latest`, {
-                    headers: { 'X-Master-Key': API_KEY }
-                });
-                
-                if (!response.ok) {
-                    // Jika belum ada data, return array kosong
-                    return { users: [] };
-                }
-                
-                const result = await response.json();
-                if (!result.record.users) {
-                    return { users: [] };
-                }
-                return result.record;
-            } catch(error) {
-                console.error('Error ambil user:', error);
-                return { users: [] };
-            }
-        }
+        // ============ FUNGSI CATATAN ============
         
-        // Simpan semua user ke JSONBin
-        async function simpanSemuaUser(data) {
-            try {
-                // Pastikan struktur data tetap
-                const dataLengkap = {
-                    users: data.users || data,
-                    notes: data.notes || {}
-                };
-                
-                const response = await fetch(API_URL, {
-                    method: 'PUT',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'X-Master-Key': API_KEY
-                    },
-                    body: JSON.stringify(dataLengkap)
-                });
-                
-                return response.ok;
-            } catch(error) {
-                console.error('Error simpan user:', error);
-                return false;
-            }
-        }
-        
-        // Ambil semua catatan dari JSONBin
-        async function ambilSemuaCatatan() {
-            try {
-                const response = await fetch(`${API_URL}/latest`, {
-                    headers: { 'X-Master-Key': API_KEY }
-                });
-                
-                if (!response.ok) {
-                    return { notes: {} };
-                }
-                
-                const result = await response.json();
-                if (!result.record.notes) {
-                    return { notes: {} };
-                }
-                return result.record;
-            } catch(error) {
-                console.error('Error ambil catatan:', error);
-                return { notes: {} };
-            }
-        }
-        
-        // Simpan semua catatan ke JSONBin
-        async function simpanSemuaCatatan(data) {
-            try {
-                // Ambil data user yang sudah ada
-                const userData = await ambilSemuaUser();
-                const dataLengkap = {
-                    users: userData.users || [],
-                    notes: data.notes || {}
-                };
-                
-                const response = await fetch(API_URL, {
-                    method: 'PUT',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'X-Master-Key': API_KEY
-                    },
-                    body: JSON.stringify(dataLengkap)
-                });
-                
-                return response.ok;
-            } catch(error) {
-                console.error('Error simpan catatan:', error);
-                return false;
-            }
-        }
-        
-        // Simpan catatan baru
         async function simpanData() {
-            const pesan = document.getElementById('pesan').value.trim();
+            const pesanInput = document.getElementById('pesan');
+            if (!pesanInput) return;
+            
+            const pesan = pesanInput.value.trim();
             
             if (!pesan) {
                 alert('Tulis pesan atau catatan terlebih dahulu!');
                 return;
             }
             
-            // Ambil data yang sudah ada
-            const dataCloud = await ambilSemuaCatatan();
-            if (!dataCloud.notes[currentUser.id]) {
-                dataCloud.notes[currentUser.id] = [];
+            // Ambil semua data
+            const semuaData = await ambilSemuaData();
+            
+            // Inisialisasi array catatan untuk user ini jika belum ada
+            if (!semuaData.notes[currentUser.id]) {
+                semuaData.notes[currentUser.id] = [];
             }
             
-            // Buat entri baru
-            const entriBaru = {
+            // Buat catatan baru
+            const catatanBaru = {
                 id: Date.now(),
                 userId: currentUser.id,
                 userName: currentUser.nama,
@@ -339,14 +300,14 @@
                 waktu: new Date().toLocaleString('id-ID')
             };
             
-            // Tambahkan ke array catatan user
-            dataCloud.notes[currentUser.id].unshift(entriBaru);
+            // Tambahkan ke awal array
+            semuaData.notes[currentUser.id].unshift(catatanBaru);
             
-            // Simpan kembali ke cloud
-            const berhasil = await simpanSemuaCatatan(dataCloud);
+            // Simpan ke JSONBin
+            const berhasil = await simpanSemuaData(semuaData);
             
             if (berhasil) {
-                document.getElementById('pesan').value = '';
+                pesanInput.value = '';
                 tampilkanPesan('✅ Catatan berhasil disimpan!', 'success');
                 await tampilkanCatatanUser();
             } else {
@@ -354,15 +315,14 @@
             }
         }
         
-        // Tampilkan catatan milik user yang login
         async function tampilkanCatatanUser() {
             const hasilDiv = document.getElementById('hasil');
             if (!hasilDiv) return;
             
             hasilDiv.innerHTML = '<div class="loading">📡 Memuat catatan...</div>';
             
-            const dataCloud = await ambilSemuaCatatan();
-            const catatanUser = dataCloud.notes[currentUser?.id] || [];
+            const semuaData = await ambilSemuaData();
+            const catatanUser = semuaData.notes[currentUser?.id] || [];
             
             if (catatanUser.length === 0) {
                 hasilDiv.innerHTML = `
@@ -373,9 +333,8 @@
                 return;
             }
             
-            // Tampilkan semua catatan user
             let html = '';
-            catatanUser.forEach(item => {
+            for (let item of catatanUser) {
                 html += `
                     <div class="data-item">
                         <strong>📝 Catatan</strong><br>
@@ -385,7 +344,7 @@
                         <button onclick="hapusSatuData(${item.id})" style="background:#dc3545; padding:5px 10px; font-size:12px; margin-top:8px;">🗑️ Hapus</button>
                     </div>
                 `;
-            });
+            }
             
             hasilDiv.innerHTML = `
                 <div class="hasil-card">
@@ -395,15 +354,14 @@
             `;
         }
         
-        // Hapus satu catatan
         async function hapusSatuData(id) {
             if (!confirm('Yakin ingin menghapus catatan ini?')) return;
             
-            const dataCloud = await ambilSemuaCatatan();
-            const catatanUser = dataCloud.notes[currentUser.id] || [];
-            dataCloud.notes[currentUser.id] = catatanUser.filter(item => item.id !== id);
+            const semuaData = await ambilSemuaData();
+            const catatanUser = semuaData.notes[currentUser.id] || [];
+            semuaData.notes[currentUser.id] = catatanUser.filter(item => item.id !== id);
             
-            const berhasil = await simpanSemuaCatatan(dataCloud);
+            const berhasil = await simpanSemuaData(semuaData);
             
             if (berhasil) {
                 tampilkanPesan('✅ Catatan dihapus!', 'success');
@@ -413,14 +371,13 @@
             }
         }
         
-        // Hapus semua catatan user
         async function hapusSemuaData() {
             if (!confirm('⚠️ PERINGATAN: Ini akan menghapus SEMUA catatan Anda! Lanjutkan?')) return;
             
-            const dataCloud = await ambilSemuaCatatan();
-            dataCloud.notes[currentUser.id] = [];
+            const semuaData = await ambilSemuaData();
+            semuaData.notes[currentUser.id] = [];
             
-            const berhasil = await simpanSemuaCatatan(dataCloud);
+            const berhasil = await simpanSemuaData(semuaData);
             
             if (berhasil) {
                 tampilkanPesan('🗑️ Semua catatan telah dihapus!', 'success');
@@ -430,7 +387,8 @@
             }
         }
         
-        // Tampilkan halaman login
+        // ============ FUNGSI TAMPILAN ============
+        
         function tampilkanLogin() {
             const app = document.getElementById('app');
             app.innerHTML = `
@@ -449,21 +407,19 @@
                 </div>
             `;
             
-            // Auto focus ke input
             setTimeout(() => {
                 const input = document.getElementById('loginNama');
                 if (input) input.focus();
             }, 100);
         }
         
-        // Tampilkan aplikasi utama
         function tampilkanAplikasi() {
             const app = document.getElementById('app');
             app.innerHTML = `
                 <div>
                     <div class="user-info">
                         <div class="welcome-text">
-                            <div class="avatar">${currentUser.nama.charAt(0).toUpperCase()}</div>
+                            <div class="avatar">${escapeHtml(currentUser.nama.charAt(0).toUpperCase())}</div>
                             <div>
                                 <strong>${escapeHtml(currentUser.nama)}</strong><br>
                                 <small style="color: #666;">ID: ${currentUser.id}</small>
@@ -488,11 +444,9 @@
                 </div>
             `;
             
-            // Load catatan user
             tampilkanCatatanUser();
         }
         
-        // Tampilkan pesan
         function tampilkanPesan(pesan, tipe) {
             const hasilDiv = document.getElementById('hasil');
             if (!hasilDiv) return;
@@ -513,7 +467,6 @@
             }, 3000);
         }
         
-        // Escape HTML
         function escapeHtml(str) {
             if (!str) return '';
             return str
@@ -524,9 +477,8 @@
                 .replace(/'/g, '&#39;');
         }
         
-        // ============ INISIALISASI ============
-        // Cek session saat halaman dimuat
+        // ============ START APLIKASI ============
         cekSession();
     </script>
 </body>
-</html>8u
+</html>
