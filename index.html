@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>Simple Chat - Fixed</title>
+    <title>Simple Chat</title>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <style>
         body { font-family: Arial; padding: 20px; max-width: 600px; margin: 0 auto; }
@@ -36,15 +36,14 @@
     </div>
 
     <script>
-        // ========== GANTI DENGAN DATA SUPABASE ANDA ==========
-        const SUPABASE_URL = 'https://fettznnppsfxyaogvgbo.supabase.co';
-        const SUPABASE_ANON_KEY = 'b_publishable_rhUpbNaUlgj-p-p28HaGeQ_KoxIIVkV';  // GANTI INI!
-        // ===================================================
+        // ========== KONFIGURASI SUPABASE ==========
+        const SUPABASE_URL = 'https://fettznnppsfxyaogvgo.supabase.co';
+        const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImZldHR6bm5wcHNmeHlhb2d2Z2JvIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzk1MTAyMTAsImV4cCI6MjA5NTA4NjIxMH0.W3a3jWj_vpzCvHY6xVeS6zGdUvleY1n1c1hjrNHM824';
+        // ==========================================
         
         const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
         let currentUser = '';
         
-        // Tampilkan status
         function setStatus(msg, isError = false) {
             const statusDiv = document.getElementById('status');
             statusDiv.textContent = msg;
@@ -52,7 +51,6 @@
             console.log(msg);
         }
         
-        // Login function
         window.login = async function() {
             currentUser = document.getElementById('username').value.trim();
             if (!currentUser) {
@@ -60,18 +58,17 @@
                 return;
             }
             
-            setStatus('Mencoba koneksi ke database...');
+            setStatus('Mencoba koneksi...');
             
-            // Test koneksi dulu
             const { error: testError } = await supabase.from('messages').select('count', { count: 'exact', head: true });
             
             if (testError) {
-                setStatus('❌ Gagal konek: ' + testError.message, true);
-                alert('Error koneksi: ' + testError.message + '\n\nPastikan anon key sudah benar!');
+                setStatus('❌ Gagal: ' + testError.message, true);
+                alert('Error: ' + testError.message);
                 return;
             }
             
-            setStatus('✅ Berhasil login sebagai: ' + currentUser);
+            setStatus('✅ Login sebagai: ' + currentUser);
             document.getElementById('loginBox').style.display = 'none';
             document.getElementById('chatBox').style.display = 'block';
             
@@ -79,10 +76,7 @@
             subscribeToMessages();
         };
         
-        // Load messages
         async function loadMessages() {
-            setStatus('Loading pesan...');
-            
             const { data, error } = await supabase
                 .from('messages')
                 .select('*')
@@ -90,17 +84,15 @@
                 .limit(50);
             
             if (error) {
-                setStatus('❌ Gagal load: ' + error.message, true);
+                setStatus('❌ Error: ' + error.message, true);
                 return;
             }
-            
-            setStatus('✅ ' + (data?.length || 0) + ' pesan dimuat');
             
             const messagesDiv = document.getElementById('messages');
             messagesDiv.innerHTML = '';
             
             if (!data || data.length === 0) {
-                messagesDiv.innerHTML = '<div style="text-align:center;color:#999;">Belum ada pesan. Kirim pesan pertama!</div>';
+                messagesDiv.innerHTML = '<div style="text-align:center;color:#999;">Belum ada pesan</div>';
                 return;
             }
             
@@ -115,9 +107,9 @@
             });
             
             messagesDiv.scrollTop = messagesDiv.scrollHeight;
+            setStatus('✅ ' + data.length + ' pesan');
         }
         
-        // Send message
         window.sendMessage = async function() {
             const msgInput = document.getElementById('message');
             const message = msgInput.value.trim();
@@ -130,14 +122,12 @@
             
             if (error) {
                 setStatus('❌ Gagal kirim: ' + error.message, true);
-                alert('Gagal kirim: ' + error.message);
             } else {
                 msgInput.value = '';
-                setStatus('✅ Pesan terkirim!');
+                setStatus('✅ Terkirim!');
             }
         };
         
-        // Subscribe realtime
         function subscribeToMessages() {
             supabase
                 .channel('messages-channel')
@@ -145,12 +135,9 @@
                     { event: 'INSERT', schema: 'public', table: 'messages' },
                     (payload) => {
                         const messagesDiv = document.getElementById('messages');
-                        
-                        // Hapus placeholder jika ada
                         if (messagesDiv.children.length === 1 && messagesDiv.children[0].innerText.includes('Belum ada pesan')) {
                             messagesDiv.innerHTML = '';
                         }
-                        
                         messagesDiv.innerHTML += `
                             <div class="message">
                                 <span class="username">${escapeHtml(payload.new.username)}</span>
@@ -159,7 +146,6 @@
                             </div>
                         `;
                         messagesDiv.scrollTop = messagesDiv.scrollHeight;
-                        setStatus('✅ Pesan baru dari ' + payload.new.username);
                     })
                 .subscribe();
         }
@@ -170,7 +156,6 @@
             return div.innerHTML;
         }
         
-        // Enter key
         document.addEventListener('DOMContentLoaded', () => {
             document.getElementById('username').addEventListener('keypress', (e) => {
                 if (e.key === 'Enter') login();
@@ -179,8 +164,6 @@
                 if (e.key === 'Enter') sendMessage();
             });
         });
-        
-        console.log('App loaded. Supabase URL:', SUPABASE_URL);
     </script>
 </body>
 </html>
