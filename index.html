@@ -3,146 +3,409 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Aplikasi Catatan dengan Login - JSONBin</title>
+    <title>Papan Pesan - Kirim Catatan</title>
     <style>
         * {
+            margin: 0;
+            padding: 0;
             box-sizing: border-box;
         }
+        
         body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            max-width: 700px;
-            margin: 0 auto;
-            padding: 20px;
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             min-height: 100vh;
+            padding: 20px;
         }
+        
         .container {
-            background: white;
-            border-radius: 10px;
-            padding: 25px;
-            box-shadow: 0 10px 40px rgba(0,0,0,0.2);
+            max-width: 800px;
+            margin: 0 auto;
         }
-        h1 {
-            color: #333;
+        
+        /* Card Style */
+        .card {
+            background: white;
+            border-radius: 20px;
+            padding: 30px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.2);
+            margin-bottom: 20px;
+        }
+        
+        /* Header */
+        .header {
             text-align: center;
             margin-bottom: 30px;
         }
-        h2 {
-            color: #555;
-            font-size: 18px;
-            margin-bottom: 15px;
-        }
-        input, textarea {
-            width: 100%;
-            padding: 12px;
-            margin: 8px 0 16px 0;
-            border: 1px solid #ddd;
-            border-radius: 5px;
-            font-size: 16px;
-        }
-        textarea {
-            resize: vertical;
-            min-height: 80px;
-        }
-        button {
-            background: #007bff;
-            color: white;
-            border: none;
-            padding: 12px 20px;
-            border-radius: 5px;
-            cursor: pointer;
-            font-size: 16px;
-            margin-right: 10px;
+        
+        .header h1 {
+            font-size: 2em;
+            color: #333;
             margin-bottom: 10px;
-            transition: all 0.3s;
         }
-        button:hover {
-            background: #0056b3;
-            transform: translateY(-2px);
+        
+        .header p {
+            color: #666;
+            font-size: 0.9em;
         }
-        button.delete-btn {
-            background: #dc3545;
-        }
-        button.delete-btn:hover {
-            background: #c82333;
-        }
-        button.logout-btn {
-            background: #6c757d;
-        }
-        button.logout-btn:hover {
-            background: #5a6268;
-        }
-        .hasil-card {
-            background: #f8f9fa;
-            border-radius: 8px;
-            padding: 15px;
-            margin-top: 20px;
-            border-left: 4px solid #007bff;
-        }
-        .data-item {
-            background: white;
-            border: 1px solid #eee;
-            border-radius: 5px;
-            padding: 12px;
-            margin-bottom: 10px;
-            position: relative;
-        }
-        .data-item strong {
-            color: #007bff;
-        }
-        .data-item small {
-            color: #999;
-            font-size: 12px;
-        }
-        .user-info {
-            background: #e8f4f8;
-            padding: 15px;
-            border-radius: 8px;
-            margin-bottom: 20px;
+        
+        /* User Info Bar */
+        .user-bar {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border-radius: 15px;
+            padding: 15px 20px;
             display: flex;
             justify-content: space-between;
             align-items: center;
+            margin-bottom: 25px;
+            color: white;
         }
-        .login-box {
-            max-width: 400px;
-            margin: 0 auto;
-            text-align: center;
+        
+        .user-info {
+            display: flex;
+            align-items: center;
+            gap: 15px;
         }
-        .login-box input {
-            text-align: center;
-            font-size: 18px;
-        }
-        .loading {
-            text-align: center;
-            color: #666;
-            padding: 20px;
-        }
-        .success {
-            color: green;
-            text-align: center;
-        }
-        .error {
-            color: red;
-            text-align: center;
-        }
-        hr {
-            margin: 20px 0;
-        }
+        
         .avatar {
-            width: 40px;
-            height: 40px;
-            background: #007bff;
+            width: 50px;
+            height: 50px;
+            background: rgba(255,255,255,0.2);
             border-radius: 50%;
-            display: inline-flex;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+            font-weight: bold;
+            backdrop-filter: blur(10px);
+        }
+        
+        .user-details h3 {
+            font-size: 1.1em;
+            margin-bottom: 5px;
+        }
+        
+        .user-details p {
+            font-size: 0.8em;
+            opacity: 0.9;
+        }
+        
+        .logout-btn {
+            background: rgba(255,255,255,0.2);
+            border: 1px solid rgba(255,255,255,0.3);
+            color: white;
+            padding: 8px 20px;
+            border-radius: 25px;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-size: 14px;
+        }
+        
+        .logout-btn:hover {
+            background: rgba(255,255,255,0.3);
+            transform: translateY(-2px);
+        }
+        
+        /* Form Kirim Pesan */
+        .form-group {
+            margin-bottom: 20px;
+        }
+        
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            color: #333;
+            font-weight: 500;
+        }
+        
+        .form-group textarea {
+            width: 100%;
+            padding: 15px;
+            border: 2px solid #e0e0e0;
+            border-radius: 12px;
+            font-size: 16px;
+            font-family: inherit;
+            resize: vertical;
+            transition: border-color 0.3s;
+        }
+        
+        .form-group textarea:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+        
+        .btn-kirim {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            padding: 14px 30px;
+            border-radius: 30px;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s;
+            width: 100%;
+        }
+        
+        .btn-kirim:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 20px rgba(102,126,234,0.4);
+        }
+        
+        .btn-refresh {
+            background: #6c757d;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 25px;
+            cursor: pointer;
+            margin-right: 10px;
+            transition: all 0.3s;
+        }
+        
+        .btn-refresh:hover {
+            background: #5a6268;
+        }
+        
+        .btn-hapus-semua {
+            background: #dc3545;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 25px;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        
+        .btn-hapus-semua:hover {
+            background: #c82333;
+        }
+        
+        /* Header Catatan */
+        .notes-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            padding-bottom: 15px;
+            border-bottom: 2px solid #f0f0f0;
+        }
+        
+        .notes-header h2 {
+            color: #333;
+            font-size: 1.3em;
+        }
+        
+        .notes-header span {
+            background: #667eea;
+            color: white;
+            padding: 5px 12px;
+            border-radius: 20px;
+            font-size: 0.8em;
+        }
+        
+        /* List Catatan */
+        .notes-list {
+            max-height: 500px;
+            overflow-y: auto;
+        }
+        
+        /* Card Catatan */
+        .note-card {
+            background: #f8f9fa;
+            border-radius: 15px;
+            padding: 18px;
+            margin-bottom: 15px;
+            transition: all 0.3s;
+            border-left: 4px solid #667eea;
+        }
+        
+        .note-card:hover {
+            transform: translateX(5px);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        }
+        
+        .note-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 12px;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+        
+        .sender-info {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+        
+        .sender-avatar-small {
+            width: 35px;
+            height: 35px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border-radius: 50%;
+            display: flex;
             align-items: center;
             justify-content: center;
             color: white;
             font-weight: bold;
-            margin-right: 10px;
+            font-size: 14px;
         }
-        .welcome-text {
+        
+        .sender-name {
+            font-weight: bold;
+            color: #333;
+        }
+        
+        .sender-id {
+            font-size: 11px;
+            color: #999;
+            font-family: monospace;
+        }
+        
+        .note-time {
+            font-size: 11px;
+            color: #999;
+        }
+        
+        .note-message {
+            color: #555;
+            line-height: 1.5;
+            margin-bottom: 12px;
+            padding-left: 45px;
+        }
+        
+        .delete-btn {
+            background: #dc3545;
+            color: white;
+            border: none;
+            padding: 5px 15px;
+            border-radius: 15px;
+            cursor: pointer;
+            font-size: 12px;
+            margin-left: 45px;
+            transition: all 0.3s;
+        }
+        
+        .delete-btn:hover {
+            background: #c82333;
+            transform: scale(1.05);
+        }
+        
+        /* Empty State */
+        .empty-state {
+            text-align: center;
+            padding: 50px 20px;
+            color: #999;
+        }
+        
+        .empty-state .emoji {
+            font-size: 50px;
+            margin-bottom: 15px;
+        }
+        
+        /* Login Box */
+        .login-card {
+            text-align: center;
+        }
+        
+        .login-icon {
+            font-size: 60px;
+            margin-bottom: 20px;
+        }
+        
+        .login-card input {
+            width: 100%;
+            padding: 15px;
+            border: 2px solid #e0e0e0;
+            border-radius: 12px;
+            font-size: 16px;
+            text-align: center;
+            margin-bottom: 20px;
+        }
+        
+        .login-card input:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+        
+        .btn-masuk {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            padding: 14px 30px;
+            border-radius: 30px;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+            width: 100%;
+        }
+        
+        .info-text {
+            margin-top: 20px;
+            font-size: 12px;
+            color: #999;
+        }
+        
+        /* Scrollbar */
+        .notes-list::-webkit-scrollbar {
+            width: 6px;
+        }
+        
+        .notes-list::-webkit-scrollbar-track {
+            background: #f1f1f1;
+            border-radius: 10px;
+        }
+        
+        .notes-list::-webkit-scrollbar-thumb {
+            background: #667eea;
+            border-radius: 10px;
+        }
+        
+        /* Loading */
+        .loading {
+            text-align: center;
+            padding: 40px;
+            color: #999;
+        }
+        
+        /* Pesan Alert */
+        .alert {
+            padding: 12px;
+            border-radius: 10px;
+            margin-bottom: 15px;
+            animation: slideDown 0.3s ease;
+        }
+        
+        .alert-success {
+            background: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+        
+        .alert-error {
+            background: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+        
+        @keyframes slideDown {
+            from {
+                opacity: 0;
+                transform: translateY(-10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        
+        .button-group {
             display: flex;
-            align-items: center;
+            gap: 10px;
+            margin-top: 15px;
         }
     </style>
 </head>
@@ -157,12 +420,9 @@
         const BIN_ID = '6a11c89c6877513b27be3827';
         const API_URL = `https://api.jsonbin.io/v3/b/${BIN_ID}`;
         
-        // ============ VARIABEL GLOBAL ============
         let currentUser = null;
         
-        // ============ FUNGSI UNTUK AMBIL/SIMPAN DATA KE JSONBIN ============
-        
-        // Ambil semua data dari JSONBin (users + notes)
+        // ============ FUNGSI JSONBIN ============
         async function ambilSemuaData() {
             try {
                 const response = await fetch(`${API_URL}/latest`, {
@@ -170,25 +430,22 @@
                 });
                 
                 if (!response.ok) {
-                    // Jika bin kosong, buat struktur default
-                    return { users: [], notes: {} };
+                    return { users: [], notes: [] };
                 }
                 
                 const result = await response.json();
                 const data = result.record;
                 
-                // Pastikan struktur data lengkap
-                if (!data.users) data.users = [];
-                if (!data.notes) data.notes = {};
-                
-                return data;
+                return {
+                    users: data.users || [],
+                    notes: data.notes || []
+                };
             } catch(error) {
-                console.error('Error ambil data:', error);
-                return { users: [], notes: {} };
+                console.error('Error:', error);
+                return { users: [], notes: [] };
             }
         }
         
-        // Simpan semua data ke JSONBin
         async function simpanSemuaData(data) {
             try {
                 const response = await fetch(API_URL, {
@@ -199,22 +456,14 @@
                     },
                     body: JSON.stringify(data)
                 });
-                
-                if (!response.ok) {
-                    const errorText = await response.text();
-                    console.error('Response error:', errorText);
-                    return false;
-                }
-                
-                return true;
+                return response.ok;
             } catch(error) {
-                console.error('Error simpan data:', error);
+                console.error('Error:', error);
                 return false;
             }
         }
         
-        // ============ FUNGSI LOGIN/LOGOUT ============
-        
+        // ============ FUNGSI LOGIN ============
         function cekSession() {
             const savedUser = localStorage.getItem('currentUser');
             if (savedUser) {
@@ -227,34 +476,24 @@
         
         async function login() {
             const namaInput = document.getElementById('loginNama');
-            if (!namaInput) return;
-            
-            const nama = namaInput.value.trim();
+            const nama = namaInput?.value.trim();
             
             if (!nama) {
                 alert('Masukkan nama Anda!');
                 return;
             }
             
-            // Ambil semua data dari JSONBin
             const semuaData = await ambilSemuaData();
             let user = semuaData.users.find(u => u.nama.toLowerCase() === nama.toLowerCase());
             
             if (!user) {
-                // Buat user baru
                 user = {
                     id: Date.now(),
                     nama: nama,
                     createdAt: new Date().toLocaleString('id-ID')
                 };
-                
                 semuaData.users.push(user);
-                const berhasil = await simpanSemuaData(semuaData);
-                
-                if (!berhasil) {
-                    alert('Gagal menyimpan data user! Coba lagi.');
-                    return;
-                }
+                await simpanSemuaData(semuaData);
             }
             
             currentUser = user;
@@ -271,139 +510,143 @@
         }
         
         // ============ FUNGSI CATATAN ============
-        
-        async function simpanData() {
+        async function kirimPesan() {
             const pesanInput = document.getElementById('pesan');
-            if (!pesanInput) return;
-            
-            const pesan = pesanInput.value.trim();
+            const pesan = pesanInput?.value.trim();
             
             if (!pesan) {
-                alert('Tulis pesan atau catatan terlebih dahulu!');
+                alert('✏️ Silakan tulis pesan terlebih dahulu!');
                 return;
             }
             
-            // Ambil semua data
             const semuaData = await ambilSemuaData();
             
-            // Inisialisasi array catatan untuk user ini jika belum ada
-            if (!semuaData.notes[currentUser.id]) {
-                semuaData.notes[currentUser.id] = [];
-            }
-            
-            // Buat catatan baru
-            const catatanBaru = {
+            const pesanBaru = {
                 id: Date.now(),
                 userId: currentUser.id,
                 userName: currentUser.nama,
                 pesan: pesan,
-                waktu: new Date().toLocaleString('id-ID')
+                waktu: new Date().toLocaleString('id-ID', {
+                    day: '2-digit',
+                    month: '2-digit',
+                    year: 'numeric',
+                    hour: '2-digit',
+                    minute: '2-digit'
+                })
             };
             
-            // Tambahkan ke awal array
-            semuaData.notes[currentUser.id].unshift(catatanBaru);
+            semuaData.notes.unshift(pesanBaru);
             
-            // Simpan ke JSONBin
             const berhasil = await simpanSemuaData(semuaData);
             
             if (berhasil) {
                 pesanInput.value = '';
-                tampilkanPesan('✅ Catatan berhasil disimpan!', 'success');
-                await tampilkanCatatanUser();
+                tampilkanPesan('✅ Pesan berhasil dikirim!', 'success');
+                await tampilkanSemuaPesan();
             } else {
-                tampilkanPesan('❌ Gagal menyimpan catatan!', 'error');
+                tampilkanPesan('❌ Gagal mengirim pesan!', 'error');
             }
         }
         
-        async function tampilkanCatatanUser() {
-            const hasilDiv = document.getElementById('hasil');
-            if (!hasilDiv) return;
+        async function tampilkanSemuaPesan() {
+            const container = document.getElementById('notesContainer');
+            if (!container) return;
             
-            hasilDiv.innerHTML = '<div class="loading">📡 Memuat catatan...</div>';
+            container.innerHTML = '<div class="loading">📡 Memuat pesan...</div>';
             
             const semuaData = await ambilSemuaData();
-            const catatanUser = semuaData.notes[currentUser?.id] || [];
+            const semuaPesan = semuaData.notes || [];
             
-            if (catatanUser.length === 0) {
-                hasilDiv.innerHTML = `
-                    <div class="hasil-card">
-                        <p style="text-align:center; color:#666;">✨ Belum ada catatan. Buat catatan pertama Anda! ✨</p>
+            if (semuaPesan.length === 0) {
+                container.innerHTML = `
+                    <div class="empty-state">
+                        <div class="emoji">💬</div>
+                        <p>Belum ada pesan. Kirim pesan pertama Anda!</p>
                     </div>
                 `;
                 return;
             }
             
             let html = '';
-            for (let item of catatanUser) {
+            for (let pesan of semuaPesan) {
+                const isOwner = currentUser && pesan.userId === currentUser.id;
                 html += `
-                    <div class="data-item">
-                        <strong>📝 Catatan</strong><br>
-                        <p>${escapeHtml(item.pesan)}</p>
-                        <small>🕐 ${item.waktu}</small>
-                        <br>
-                        <button onclick="hapusSatuData(${item.id})" style="background:#dc3545; padding:5px 10px; font-size:12px; margin-top:8px;">🗑️ Hapus</button>
+                    <div class="note-card">
+                        <div class="note-header">
+                            <div class="sender-info">
+                                <div class="sender-avatar-small">
+                                    ${escapeHtml(pesan.userName.charAt(0).toUpperCase())}
+                                </div>
+                                <div>
+                                    <div class="sender-name">${escapeHtml(pesan.userName)}</div>
+                                    <div class="sender-id">🆔 ID: ${pesan.userId}</div>
+                                </div>
+                            </div>
+                            <div class="note-time">📅 ${pesan.waktu}</div>
+                        </div>
+                        <div class="note-message">
+                            ${escapeHtml(pesan.pesan)}
+                        </div>
+                        ${isOwner ? `<button class="delete-btn" onclick="hapusPesan(${pesan.id})">🗑️ Hapus</button>` : ''}
                     </div>
                 `;
             }
             
-            hasilDiv.innerHTML = `
-                <div class="hasil-card">
-                    <strong>📋 Total Catatan: ${catatanUser.length}</strong>
-                    ${html}
-                </div>
-            `;
+            // Update total pesan
+            const totalSpan = document.getElementById('totalPesan');
+            if (totalSpan) totalSpan.textContent = semuaPesan.length;
+            
+            container.innerHTML = html;
         }
         
-        async function hapusSatuData(id) {
-            if (!confirm('Yakin ingin menghapus catatan ini?')) return;
+        async function hapusPesan(id) {
+            if (!confirm('Yakin ingin menghapus pesan ini?')) return;
             
             const semuaData = await ambilSemuaData();
-            const catatanUser = semuaData.notes[currentUser.id] || [];
-            semuaData.notes[currentUser.id] = catatanUser.filter(item => item.id !== id);
+            semuaData.notes = semuaData.notes.filter(item => item.id !== id);
             
             const berhasil = await simpanSemuaData(semuaData);
             
             if (berhasil) {
-                tampilkanPesan('✅ Catatan dihapus!', 'success');
-                await tampilkanCatatanUser();
+                tampilkanPesan('✅ Pesan dihapus!', 'success');
+                await tampilkanSemuaPesan();
             } else {
                 tampilkanPesan('❌ Gagal menghapus!', 'error');
             }
         }
         
-        async function hapusSemuaData() {
-            if (!confirm('⚠️ PERINGATAN: Ini akan menghapus SEMUA catatan Anda! Lanjutkan?')) return;
+        async function hapusSemuaPesan() {
+            if (!confirm('⚠️ PERINGATAN: Ini akan menghapus SEMUA pesan dari semua pengguna! Lanjutkan?')) return;
             
             const semuaData = await ambilSemuaData();
-            semuaData.notes[currentUser.id] = [];
+            semuaData.notes = [];
             
             const berhasil = await simpanSemuaData(semuaData);
             
             if (berhasil) {
-                tampilkanPesan('🗑️ Semua catatan telah dihapus!', 'success');
-                await tampilkanCatatanUser();
+                tampilkanPesan('🗑️ Semua pesan telah dihapus!', 'success');
+                await tampilkanSemuaPesan();
             } else {
                 tampilkanPesan('❌ Gagal menghapus!', 'error');
             }
         }
         
         // ============ FUNGSI TAMPILAN ============
-        
         function tampilkanLogin() {
             const app = document.getElementById('app');
             app.innerHTML = `
-                <div class="login-box">
-                    <h1>📝 Aplikasi Catatan</h1>
-                    <div style="text-align: center; margin-bottom: 30px;">
-                        <div style="font-size: 50px;">👋</div>
-                        <p style="color: #666;">Selamat datang! Silakan masuk dengan nama Anda</p>
+                <div class="card login-card">
+                    <div class="header">
+                        <div class="login-icon">📝</div>
+                        <h1>Papan Pesan</h1>
+                        <p>Kirim pesan dan lihat pesan dari pengguna lain</p>
                     </div>
                     <input type="text" id="loginNama" placeholder="Masukkan nama Anda" autocomplete="off">
-                    <button onclick="login()" style="width: 100%;">🚀 Masuk</button>
-                    <p style="text-align: center; margin-top: 20px; font-size: 12px; color: #999;">
-                        Nama akan disimpan secara permanen.<br>
-                        Catatan Anda hanya bisa dilihat oleh Anda sendiri.
-                    </p>
+                    <button class="btn-masuk" onclick="login()">🚀 Masuk</button>
+                    <div class="info-text">
+                        ✨ Nama akan disimpan secara permanen<br>
+                        📱 Pesan Anda akan terlihat oleh semua pengguna
+                    </div>
                 </div>
             `;
             
@@ -416,54 +659,57 @@
         function tampilkanAplikasi() {
             const app = document.getElementById('app');
             app.innerHTML = `
-                <div>
-                    <div class="user-info">
-                        <div class="welcome-text">
+                <div class="card">
+                    <div class="user-bar">
+                        <div class="user-info">
                             <div class="avatar">${escapeHtml(currentUser.nama.charAt(0).toUpperCase())}</div>
-                            <div>
-                                <strong>${escapeHtml(currentUser.nama)}</strong><br>
-                                <small style="color: #666;">ID: ${currentUser.id}</small>
+                            <div class="user-details">
+                                <h3>${escapeHtml(currentUser.nama)}</h3>
+                                <p>🆔 ID: ${currentUser.id}</p>
                             </div>
                         </div>
-                        <button onclick="logout()" class="logout-btn">🚪 Logout</button>
+                        <button class="logout-btn" onclick="logout()">🚪 Logout</button>
                     </div>
                     
-                    <h2>✏️ Buat Catatan Baru</h2>
-                    <div>
-                        <textarea id="pesan" placeholder="Tulis catatan Anda di sini..."></textarea>
-                        <button onclick="simpanData()">💾 Simpan Catatan</button>
-                        <button onclick="tampilkanCatatanUser()">🔄 Muat Ulang</button>
-                        <button onclick="hapusSemuaData()" class="delete-btn">🗑️ Hapus Semua</button>
+                    <div class="form-group">
+                        <label>✏️ Tulis Pesan</label>
+                        <textarea id="pesan" rows="3" placeholder="Tulis pesan atau catatan Anda di sini..."></textarea>
+                    </div>
+                    <button class="btn-kirim" onclick="kirimPesan()">📤 Kirim</button>
+                </div>
+                
+                <div class="card">
+                    <div class="notes-header">
+                        <h2>💬 Semua Pesan</h2>
+                        <span id="totalPesan">0</span>
                     </div>
                     
-                    <hr>
+                    <div class="button-group">
+                        <button class="btn-refresh" onclick="tampilkanSemuaPesan()">🔄 Refresh</button>
+                        <button class="btn-hapus-semua" onclick="hapusSemuaPesan()">🗑️ Hapus Semua</button>
+                    </div>
                     
-                    <div id="hasil">
-                        <div class="loading">📡 Memuat catatan...</div>
+                    <div id="notesContainer" class="notes-list">
+                        <div class="loading">📡 Memuat pesan...</div>
                     </div>
                 </div>
             `;
             
-            tampilkanCatatanUser();
+            tampilkanSemuaPesan();
         }
         
         function tampilkanPesan(pesan, tipe) {
-            const hasilDiv = document.getElementById('hasil');
-            if (!hasilDiv) return;
+            const container = document.getElementById('notesContainer');
+            if (!container) return;
             
-            const pesanDiv = document.createElement('div');
-            pesanDiv.className = tipe;
-            pesanDiv.style.padding = '10px';
-            pesanDiv.style.marginTop = '10px';
-            pesanDiv.style.borderRadius = '5px';
-            pesanDiv.style.backgroundColor = tipe === 'success' ? '#d4edda' : '#f8d7da';
-            pesanDiv.style.border = tipe === 'success' ? '1px solid #c3e6cb' : '1px solid #f5c6cb';
-            pesanDiv.innerHTML = pesan;
+            const alertDiv = document.createElement('div');
+            alertDiv.className = `alert alert-${tipe}`;
+            alertDiv.innerHTML = pesan;
             
-            hasilDiv.insertBefore(pesanDiv, hasilDiv.firstChild);
+            container.insertBefore(alertDiv, container.firstChild);
             
             setTimeout(() => {
-                pesanDiv.remove();
+                alertDiv.remove();
             }, 3000);
         }
         
@@ -477,7 +723,7 @@
                 .replace(/'/g, '&#39;');
         }
         
-        // ============ START APLIKASI ============
+        // Start aplikasi
         cekSession();
     </script>
 </body>
