@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Papan Pesan - Kirim Catatan</title>
+    <title>Papan Pesan - Dengan Password</title>
     <style>
         * {
             margin: 0;
@@ -112,6 +112,7 @@
             font-weight: 500;
         }
         
+        .form-group input,
         .form-group textarea {
             width: 100%;
             padding: 15px;
@@ -119,39 +120,17 @@
             border-radius: 12px;
             font-size: 16px;
             font-family: inherit;
-            resize: vertical;
             transition: border-color 0.3s;
         }
         
+        .form-group input:focus,
         .form-group textarea:focus {
             outline: none;
             border-color: #667eea;
         }
         
-        /* ============ ANIMASI LOADING ============ */
-        .btn-loading {
-            position: relative;
-            pointer-events: none;
-            opacity: 0.7;
-        }
-        
-        .btn-loading::after {
-            content: '';
-            position: absolute;
-            width: 20px;
-            height: 20px;
-            top: 50%;
-            right: 20px;
-            transform: translateY(-50%);
-            border: 2px solid white;
-            border-top: 2px solid transparent;
-            border-radius: 50%;
-            animation: spin 0.8s linear infinite;
-        }
-        
-        @keyframes spin {
-            0% { transform: translateY(-50%) rotate(0deg); }
-            100% { transform: translateY(-50%) rotate(360deg); }
+        .form-group textarea {
+            resize: vertical;
         }
         
         .btn-kirim {
@@ -213,109 +192,6 @@
         
         .btn-hapus-semua:disabled {
             opacity: 0.7;
-            cursor: not-allowed;
-        }
-        
-        .btn-masuk {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            color: white;
-            border: none;
-            padding: 14px 30px;
-            border-radius: 30px;
-            font-size: 16px;
-            font-weight: bold;
-            cursor: pointer;
-            width: 100%;
-            transition: all 0.3s;
-        }
-        
-        .btn-masuk:hover:not(:disabled) {
-            transform: translateY(-2px);
-            box-shadow: 0 5px 20px rgba(102,126,234,0.4);
-        }
-        
-        .btn-masuk:disabled {
-            opacity: 0.7;
-            cursor: not-allowed;
-        }
-        
-        /* Loading Spinner untuk konten */
-        .loading-spinner {
-            text-align: center;
-            padding: 40px;
-        }
-        
-        .spinner {
-            width: 50px;
-            height: 50px;
-            margin: 0 auto 15px;
-            border: 4px solid #f3f3f3;
-            border-top: 4px solid #667eea;
-            border-radius: 50%;
-            animation: spin 1s linear infinite;
-        }
-        
-        .loading-text {
-            color: #999;
-            font-size: 14px;
-        }
-        
-        /* Loading overlay untuk card */
-        .card-loading {
-            position: relative;
-            pointer-events: none;
-        }
-        
-        .card-loading::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            background: rgba(255,255,255,0.8);
-            border-radius: 20px;
-            z-index: 10;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
-        
-        .card-loading::after {
-            content: '';
-            position: absolute;
-            top: 50%;
-            left: 50%;
-            width: 40px;
-            height: 40px;
-            margin: -20px 0 0 -20px;
-            border: 3px solid #e0e0e0;
-            border-top: 3px solid #667eea;
-            border-radius: 50%;
-            animation: spin 0.8s linear infinite;
-            z-index: 11;
-        }
-        
-        /* Loading untuk tombol delete */
-        .delete-btn {
-            background: #dc3545;
-            color: white;
-            border: none;
-            padding: 5px 15px;
-            border-radius: 15px;
-            cursor: pointer;
-            font-size: 12px;
-            margin-left: 45px;
-            transition: all 0.3s;
-        }
-        
-        .delete-btn:hover:not(:disabled) {
-            background: #c82333;
-            transform: scale(1.05);
-        }
-        
-        .delete-btn:disabled {
-            opacity: 0.6;
             cursor: not-allowed;
         }
         
@@ -411,6 +287,28 @@
             padding-left: 45px;
         }
         
+        .delete-btn {
+            background: #dc3545;
+            color: white;
+            border: none;
+            padding: 5px 15px;
+            border-radius: 15px;
+            cursor: pointer;
+            font-size: 12px;
+            margin-left: 45px;
+            transition: all 0.3s;
+        }
+        
+        .delete-btn:hover:not(:disabled) {
+            background: #c82333;
+            transform: scale(1.05);
+        }
+        
+        .delete-btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+        }
+        
         .empty-state {
             text-align: center;
             padding: 50px 20px;
@@ -422,6 +320,7 @@
             margin-bottom: 15px;
         }
         
+        /* Login Card Styles */
         .login-card {
             text-align: center;
         }
@@ -431,14 +330,51 @@
             margin-bottom: 20px;
         }
         
+        .login-tabs {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+            border-bottom: 2px solid #e0e0e0;
+        }
+        
+        .tab-btn {
+            flex: 1;
+            padding: 12px;
+            background: none;
+            border: none;
+            font-size: 16px;
+            cursor: pointer;
+            color: #666;
+            transition: all 0.3s;
+            border-radius: 10px 10px 0 0;
+        }
+        
+        .tab-btn.active {
+            color: #667eea;
+            border-bottom: 3px solid #667eea;
+            font-weight: bold;
+        }
+        
+        .tab-btn:hover:not(.active) {
+            background: #f5f5f5;
+        }
+        
+        .login-form {
+            display: none;
+        }
+        
+        .login-form.active {
+            display: block;
+            animation: fadeIn 0.3s ease;
+        }
+        
         .login-card input {
             width: 100%;
             padding: 15px;
             border: 2px solid #e0e0e0;
             border-radius: 12px;
             font-size: 16px;
-            text-align: center;
-            margin-bottom: 20px;
+            margin-bottom: 15px;
             transition: border-color 0.3s;
         }
         
@@ -449,6 +385,31 @@
         
         .login-card input:disabled {
             background: #f5f5f5;
+            cursor: not-allowed;
+        }
+        
+        .btn-masuk, .btn-daftar {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            padding: 14px 30px;
+            border-radius: 30px;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+            width: 100%;
+            transition: all 0.3s;
+        }
+        
+        .btn-masuk:hover:not(:disabled),
+        .btn-daftar:hover:not(:disabled) {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 20px rgba(102,126,234,0.4);
+        }
+        
+        .btn-masuk:disabled,
+        .btn-daftar:disabled {
+            opacity: 0.7;
             cursor: not-allowed;
         }
         
@@ -472,10 +433,64 @@
             border-radius: 10px;
         }
         
-        .loading {
+        .loading-spinner {
             text-align: center;
             padding: 40px;
+        }
+        
+        .spinner {
+            width: 50px;
+            height: 50px;
+            margin: 0 auto 15px;
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid #667eea;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+        
+        .loading-text {
             color: #999;
+            font-size: 14px;
+        }
+        
+        .btn-loading {
+            position: relative;
+            pointer-events: none;
+            opacity: 0.7;
+        }
+        
+        .btn-loading::after {
+            content: '';
+            position: absolute;
+            width: 20px;
+            height: 20px;
+            top: 50%;
+            right: 20px;
+            transform: translateY(-50%);
+            border: 2px solid white;
+            border-top: 2px solid transparent;
+            border-radius: 50%;
+            animation: spin 0.8s linear infinite;
+        }
+        
+        @keyframes spin {
+            0% { transform: translateY(-50%) rotate(0deg); }
+            100% { transform: translateY(-50%) rotate(360deg); }
+        }
+        
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        
+        .fade-in {
+            animation: fadeIn 0.3s ease;
         }
         
         .alert {
@@ -514,20 +529,27 @@
             margin-top: 15px;
         }
         
-        /* Animasi fade in untuk konten */
-        @keyframes fadeIn {
-            from {
-                opacity: 0;
-                transform: translateY(10px);
-            }
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
+        .password-hint {
+            font-size: 11px;
+            color: #999;
+            text-align: left;
+            margin-top: -10px;
+            margin-bottom: 15px;
         }
         
-        .fade-in {
-            animation: fadeIn 0.3s ease;
+        .show-password {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-bottom: 15px;
+            font-size: 13px;
+            color: #666;
+            cursor: pointer;
+        }
+        
+        .show-password input {
+            width: auto;
+            margin-bottom: 0;
         }
     </style>
 </head>
@@ -547,7 +569,7 @@
         
         let currentUser = null;
         
-        // Fungsi untuk menampilkan loading pada tombol
+        // Helper function untuk set button loading
         function setButtonLoading(button, isLoading, originalText) {
             if (!button) return;
             if (isLoading) {
@@ -559,16 +581,6 @@
                 button.disabled = false;
                 button.classList.remove('btn-loading');
                 button.innerText = button.dataset.originalText || originalText || 'Submit';
-            }
-        }
-        
-        // Fungsi untuk menampilkan loading pada card
-        function setCardLoading(element, isLoading) {
-            if (!element) return;
-            if (isLoading) {
-                element.classList.add('card-loading');
-            } else {
-                element.classList.remove('card-loading');
             }
         }
         
@@ -626,7 +638,7 @@
             }
         }
         
-        // ============ FUNGSI LOGIN ============
+        // ============ FUNGSI LOGIN & REGISTER ============
         function cekSession() {
             const savedUser = localStorage.getItem('currentUser');
             if (savedUser) {
@@ -637,50 +649,127 @@
             }
         }
         
-        async function login() {
-            const namaInput = document.getElementById('loginNama');
-            const loginBtn = document.querySelector('.btn-masuk');
+        // Fungsi Register (Daftar)
+        async function register() {
+            const namaInput = document.getElementById('registerNama');
+            const passwordInput = document.getElementById('registerPassword');
+            const daftarBtn = document.querySelector('.btn-daftar');
+            
             const nama = namaInput?.value.trim();
+            const password = passwordInput?.value;
             
             if (!nama) {
                 alert('Masukkan nama Anda!');
                 return;
             }
             
-            // Tampilkan loading
-            setButtonLoading(loginBtn, true, 'Masuk');
+            if (!password || password.length < 4) {
+                alert('Password minimal 4 karakter!');
+                return;
+            }
+            
+            setButtonLoading(daftarBtn, true, 'Daftar');
             namaInput.disabled = true;
+            passwordInput.disabled = true;
             
             try {
                 const semuaData = await ambilSemuaData();
-                let user = semuaData.users.find(u => u.nama.toLowerCase() === nama.toLowerCase());
                 
-                if (!user) {
-                    user = {
-                        id: Date.now(),
-                        nama: nama,
-                        createdAt: new Date().toLocaleString('id-ID')
-                    };
-                    semuaData.users.push(user);
-                    const berhasil = await simpanSemuaData(semuaData);
-                    if (!berhasil) {
-                        alert('Gagal menyimpan data user!');
-                        return;
-                    }
+                // Cek apakah nama sudah terdaftar
+                const userExists = semuaData.users.find(u => u.nama.toLowerCase() === nama.toLowerCase());
+                if (userExists) {
+                    alert('❌ Nama sudah terdaftar! Silakan login atau gunakan nama lain.');
+                    return;
                 }
                 
-                // Simulasi delay untuk efek loading yang lebih halus
+                // Buat user baru dengan password
+                const user = {
+                    id: Date.now(),
+                    nama: nama,
+                    password: password, // Simpan password (untuk demo, di real app harus di-hash)
+                    createdAt: new Date().toLocaleString('id-ID')
+                };
+                
+                semuaData.users.push(user);
+                const berhasil = await simpanSemuaData(semuaData);
+                
+                if (berhasil) {
+                    alert('✅ Pendaftaran berhasil! Silakan login.');
+                    // Reset form register
+                    namaInput.value = '';
+                    passwordInput.value = '';
+                    // Pindah ke tab login
+                    showLoginTab();
+                } else {
+                    alert('❌ Gagal mendaftar! Coba lagi.');
+                }
+            } catch(error) {
+                console.error('Error register:', error);
+                alert('Terjadi kesalahan: ' + error.message);
+            } finally {
+                setButtonLoading(daftarBtn, false);
+                namaInput.disabled = false;
+                passwordInput.disabled = false;
+            }
+        }
+        
+        // Fungsi Login
+        async function login() {
+            const namaInput = document.getElementById('loginNama');
+            const passwordInput = document.getElementById('loginPassword');
+            const loginBtn = document.querySelector('.btn-masuk');
+            
+            const nama = namaInput?.value.trim();
+            const password = passwordInput?.value;
+            
+            if (!nama) {
+                alert('Masukkan nama Anda!');
+                return;
+            }
+            
+            if (!password) {
+                alert('Masukkan password Anda!');
+                return;
+            }
+            
+            setButtonLoading(loginBtn, true, 'Masuk');
+            namaInput.disabled = true;
+            passwordInput.disabled = true;
+            
+            try {
+                const semuaData = await ambilSemuaData();
+                const user = semuaData.users.find(u => u.nama.toLowerCase() === nama.toLowerCase());
+                
+                if (!user) {
+                    alert('❌ Nama tidak ditemukan! Silakan daftar terlebih dahulu.');
+                    return;
+                }
+                
+                // Verifikasi password
+                if (user.password !== password) {
+                    alert('❌ Password salah! Coba lagi.');
+                    return;
+                }
+                
+                // Simulasi delay untuk efek loading
                 await new Promise(resolve => setTimeout(resolve, 500));
                 
                 currentUser = user;
-                localStorage.setItem('currentUser', JSON.stringify(user));
+                // Hapus password dari session storage (jangan simpan password di localStorage)
+                const userForStorage = {
+                    id: user.id,
+                    nama: user.nama,
+                    createdAt: user.createdAt
+                };
+                localStorage.setItem('currentUser', JSON.stringify(userForStorage));
                 tampilkanAplikasi();
             } catch(error) {
                 console.error('Error login:', error);
                 alert('Terjadi kesalahan: ' + error.message);
             } finally {
                 setButtonLoading(loginBtn, false);
-                if (namaInput) namaInput.disabled = false;
+                namaInput.disabled = false;
+                passwordInput.disabled = false;
             }
         }
         
@@ -689,6 +778,30 @@
                 currentUser = null;
                 localStorage.removeItem('currentUser');
                 tampilkanLogin();
+            }
+        }
+        
+        // Toggle tab login/register
+        function showLoginTab() {
+            document.getElementById('loginTab')?.classList.add('active');
+            document.getElementById('registerTab')?.classList.remove('active');
+            document.getElementById('loginForm')?.classList.add('active');
+            document.getElementById('registerForm')?.classList.remove('active');
+        }
+        
+        function showRegisterTab() {
+            document.getElementById('registerTab')?.classList.add('active');
+            document.getElementById('loginTab')?.classList.remove('active');
+            document.getElementById('registerForm')?.classList.add('active');
+            document.getElementById('loginForm')?.classList.remove('active');
+        }
+        
+        function togglePassword(inputId) {
+            const input = document.getElementById(inputId);
+            if (input.type === 'password') {
+                input.type = 'text';
+            } else {
+                input.type = 'password';
             }
         }
         
@@ -714,7 +827,6 @@
                 return;
             }
             
-            // Tampilkan loading pada tombol
             setButtonLoading(kirimBtn, true, 'Kirim');
             
             try {
@@ -738,7 +850,6 @@
                 
                 const berhasil = await simpanSemuaData(semuaData);
                 
-                // Simulasi delay untuk efek loading
                 await new Promise(resolve => setTimeout(resolve, 500));
                 
                 if (berhasil) {
@@ -762,7 +873,6 @@
             
             if (!container) return;
             
-            // Tampilkan loading di container
             container.innerHTML = `
                 <div class="loading-spinner">
                     <div class="spinner"></div>
@@ -770,14 +880,12 @@
                 </div>
             `;
             
-            // Disable refresh button selama loading
             if (refreshBtn) refreshBtn.disabled = true;
             
             try {
                 const semuaData = await ambilSemuaData();
                 const semuaPesan = semuaData.notes || [];
                 
-                // Simulasi delay untuk loading effect
                 await new Promise(resolve => setTimeout(resolve, 300));
                 
                 if (semuaPesan.length === 0) {
@@ -834,7 +942,6 @@
         async function hapusPesan(id) {
             if (!confirm('Yakin ingin menghapus pesan ini?')) return;
             
-            // Cari tombol delete yang diklik dan disable
             const deleteButtons = document.querySelectorAll('.delete-btn');
             let targetBtn = null;
             for (let btn of deleteButtons) {
@@ -908,15 +1015,40 @@
             app.innerHTML = `
                 <div class="card login-card fade-in">
                     <div class="header">
-                        <div class="login-icon">📝</div>
+                        <div class="login-icon">🔐</div>
                         <h1>Papan Pesan</h1>
                         <p>Kirim pesan dan lihat pesan dari pengguna lain</p>
                     </div>
-                    <input type="text" id="loginNama" placeholder="Masukkan nama Anda" autocomplete="off">
-                    <button class="btn-masuk" onclick="login()">🚀 Masuk</button>
+                    
+                    <div class="login-tabs">
+                        <button class="tab-btn active" id="loginTab" onclick="showLoginTab()">Login</button>
+                        <button class="tab-btn" id="registerTab" onclick="showRegisterTab()">Daftar</button>
+                    </div>
+                    
+                    <div id="loginForm" class="login-form active">
+                        <input type="text" id="loginNama" placeholder="Nama Anda" autocomplete="off">
+                        <input type="password" id="loginPassword" placeholder="Password">
+                        <div class="show-password">
+                            <input type="checkbox" onclick="togglePassword('loginPassword')">
+                            <span>Tampilkan password</span>
+                        </div>
+                        <button class="btn-masuk" onclick="login()">🚀 Masuk</button>
+                    </div>
+                    
+                    <div id="registerForm" class="login-form">
+                        <input type="text" id="registerNama" placeholder="Nama Anda" autocomplete="off">
+                        <input type="password" id="registerPassword" placeholder="Password (minimal 4 karakter)">
+                        <div class="show-password">
+                            <input type="checkbox" onclick="togglePassword('registerPassword')">
+                            <span>Tampilkan password</span>
+                        </div>
+                        <div class="password-hint">🔒 Password akan disimpan di server. Gunakan password yang mudah diingat!</div>
+                        <button class="btn-daftar" onclick="register()">📝 Daftar</button>
+                    </div>
+                    
                     <div class="info-text">
-                        ✨ Nama akan disimpan secara permanen<br>
-                        📱 Pesan Anda akan terlihat oleh semua pengguna
+                        ✨ Daftar dulu jika belum punya akun<br>
+                        🔐 Login dengan nama dan password yang sudah didaftarkan
                     </div>
                 </div>
             `;
