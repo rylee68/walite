@@ -120,11 +120,38 @@
             font-size: 16px;
             font-family: inherit;
             resize: vertical;
+            transition: border-color 0.3s;
         }
         
         .form-group textarea:focus {
             outline: none;
             border-color: #667eea;
+        }
+        
+        /* ============ ANIMASI LOADING ============ */
+        .btn-loading {
+            position: relative;
+            pointer-events: none;
+            opacity: 0.7;
+        }
+        
+        .btn-loading::after {
+            content: '';
+            position: absolute;
+            width: 20px;
+            height: 20px;
+            top: 50%;
+            right: 20px;
+            transform: translateY(-50%);
+            border: 2px solid white;
+            border-top: 2px solid transparent;
+            border-radius: 50%;
+            animation: spin 0.8s linear infinite;
+        }
+        
+        @keyframes spin {
+            0% { transform: translateY(-50%) rotate(0deg); }
+            100% { transform: translateY(-50%) rotate(360deg); }
         }
         
         .btn-kirim {
@@ -140,9 +167,14 @@
             width: 100%;
         }
         
-        .btn-kirim:hover {
+        .btn-kirim:hover:not(:disabled) {
             transform: translateY(-2px);
             box-shadow: 0 5px 20px rgba(102,126,234,0.4);
+        }
+        
+        .btn-kirim:disabled {
+            opacity: 0.7;
+            cursor: not-allowed;
         }
         
         .btn-refresh {
@@ -153,10 +185,16 @@
             border-radius: 25px;
             cursor: pointer;
             margin-right: 10px;
+            transition: all 0.3s;
         }
         
-        .btn-refresh:hover {
+        .btn-refresh:hover:not(:disabled) {
             background: #5a6268;
+        }
+        
+        .btn-refresh:disabled {
+            opacity: 0.7;
+            cursor: not-allowed;
         }
         
         .btn-hapus-semua {
@@ -166,10 +204,119 @@
             padding: 10px 20px;
             border-radius: 25px;
             cursor: pointer;
+            transition: all 0.3s;
         }
         
-        .btn-hapus-semua:hover {
+        .btn-hapus-semua:hover:not(:disabled) {
             background: #c82333;
+        }
+        
+        .btn-hapus-semua:disabled {
+            opacity: 0.7;
+            cursor: not-allowed;
+        }
+        
+        .btn-masuk {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            padding: 14px 30px;
+            border-radius: 30px;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+            width: 100%;
+            transition: all 0.3s;
+        }
+        
+        .btn-masuk:hover:not(:disabled) {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 20px rgba(102,126,234,0.4);
+        }
+        
+        .btn-masuk:disabled {
+            opacity: 0.7;
+            cursor: not-allowed;
+        }
+        
+        /* Loading Spinner untuk konten */
+        .loading-spinner {
+            text-align: center;
+            padding: 40px;
+        }
+        
+        .spinner {
+            width: 50px;
+            height: 50px;
+            margin: 0 auto 15px;
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid #667eea;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+        
+        .loading-text {
+            color: #999;
+            font-size: 14px;
+        }
+        
+        /* Loading overlay untuk card */
+        .card-loading {
+            position: relative;
+            pointer-events: none;
+        }
+        
+        .card-loading::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(255,255,255,0.8);
+            border-radius: 20px;
+            z-index: 10;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .card-loading::after {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 40px;
+            height: 40px;
+            margin: -20px 0 0 -20px;
+            border: 3px solid #e0e0e0;
+            border-top: 3px solid #667eea;
+            border-radius: 50%;
+            animation: spin 0.8s linear infinite;
+            z-index: 11;
+        }
+        
+        /* Loading untuk tombol delete */
+        .delete-btn {
+            background: #dc3545;
+            color: white;
+            border: none;
+            padding: 5px 15px;
+            border-radius: 15px;
+            cursor: pointer;
+            font-size: 12px;
+            margin-left: 45px;
+            transition: all 0.3s;
+        }
+        
+        .delete-btn:hover:not(:disabled) {
+            background: #c82333;
+            transform: scale(1.05);
+        }
+        
+        .delete-btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
         }
         
         .notes-header {
@@ -264,21 +411,6 @@
             padding-left: 45px;
         }
         
-        .delete-btn {
-            background: #dc3545;
-            color: white;
-            border: none;
-            padding: 5px 15px;
-            border-radius: 15px;
-            cursor: pointer;
-            font-size: 12px;
-            margin-left: 45px;
-        }
-        
-        .delete-btn:hover {
-            background: #c82333;
-        }
-        
         .empty-state {
             text-align: center;
             padding: 50px 20px;
@@ -307,6 +439,7 @@
             font-size: 16px;
             text-align: center;
             margin-bottom: 20px;
+            transition: border-color 0.3s;
         }
         
         .login-card input:focus {
@@ -314,16 +447,9 @@
             border-color: #667eea;
         }
         
-        .btn-masuk {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            color: white;
-            border: none;
-            padding: 14px 30px;
-            border-radius: 30px;
-            font-size: 16px;
-            font-weight: bold;
-            cursor: pointer;
-            width: 100%;
+        .login-card input:disabled {
+            background: #f5f5f5;
+            cursor: not-allowed;
         }
         
         .info-text {
@@ -387,11 +513,30 @@
             gap: 10px;
             margin-top: 15px;
         }
+        
+        /* Animasi fade in untuk konten */
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        
+        .fade-in {
+            animation: fadeIn 0.3s ease;
+        }
     </style>
 </head>
 <body>
     <div class="container" id="app">
-        <div class="loading">Memuat...</div>
+        <div class="loading-spinner">
+            <div class="spinner"></div>
+            <div class="loading-text">Memuat aplikasi...</div>
+        </div>
     </div>
 
     <script>
@@ -402,6 +547,31 @@
         
         let currentUser = null;
         
+        // Fungsi untuk menampilkan loading pada tombol
+        function setButtonLoading(button, isLoading, originalText) {
+            if (!button) return;
+            if (isLoading) {
+                button.disabled = true;
+                button.classList.add('btn-loading');
+                button.dataset.originalText = originalText || button.innerText;
+                button.innerText = 'Memproses...';
+            } else {
+                button.disabled = false;
+                button.classList.remove('btn-loading');
+                button.innerText = button.dataset.originalText || originalText || 'Submit';
+            }
+        }
+        
+        // Fungsi untuk menampilkan loading pada card
+        function setCardLoading(element, isLoading) {
+            if (!element) return;
+            if (isLoading) {
+                element.classList.add('card-loading');
+            } else {
+                element.classList.remove('card-loading');
+            }
+        }
+        
         // ============ FUNGSI JSONBIN ============
         async function ambilSemuaData() {
             try {
@@ -410,7 +580,6 @@
                 });
                 
                 if (!response.ok) {
-                    // Jika bin kosong atau error, buat struktur default
                     console.log('Membuat struktur data baru...');
                     return { users: [], notes: [] };
                 }
@@ -418,7 +587,6 @@
                 const result = await response.json();
                 const data = result.record;
                 
-                // Pastikan struktur data lengkap
                 return {
                     users: data.users || [],
                     notes: data.notes || []
@@ -431,7 +599,6 @@
         
         async function simpanSemuaData(data) {
             try {
-                // Pastikan data memiliki struktur yang benar
                 const dataToSave = {
                     users: data.users || [],
                     notes: data.notes || []
@@ -472,6 +639,7 @@
         
         async function login() {
             const namaInput = document.getElementById('loginNama');
+            const loginBtn = document.querySelector('.btn-masuk');
             const nama = namaInput?.value.trim();
             
             if (!nama) {
@@ -479,26 +647,41 @@
                 return;
             }
             
-            const semuaData = await ambilSemuaData();
-            let user = semuaData.users.find(u => u.nama.toLowerCase() === nama.toLowerCase());
+            // Tampilkan loading
+            setButtonLoading(loginBtn, true, 'Masuk');
+            namaInput.disabled = true;
             
-            if (!user) {
-                user = {
-                    id: Date.now(),
-                    nama: nama,
-                    createdAt: new Date().toLocaleString('id-ID')
-                };
-                semuaData.users.push(user);
-                const berhasil = await simpanSemuaData(semuaData);
-                if (!berhasil) {
-                    alert('Gagal menyimpan data user!');
-                    return;
+            try {
+                const semuaData = await ambilSemuaData();
+                let user = semuaData.users.find(u => u.nama.toLowerCase() === nama.toLowerCase());
+                
+                if (!user) {
+                    user = {
+                        id: Date.now(),
+                        nama: nama,
+                        createdAt: new Date().toLocaleString('id-ID')
+                    };
+                    semuaData.users.push(user);
+                    const berhasil = await simpanSemuaData(semuaData);
+                    if (!berhasil) {
+                        alert('Gagal menyimpan data user!');
+                        return;
+                    }
                 }
+                
+                // Simulasi delay untuk efek loading yang lebih halus
+                await new Promise(resolve => setTimeout(resolve, 500));
+                
+                currentUser = user;
+                localStorage.setItem('currentUser', JSON.stringify(user));
+                tampilkanAplikasi();
+            } catch(error) {
+                console.error('Error login:', error);
+                alert('Terjadi kesalahan: ' + error.message);
+            } finally {
+                setButtonLoading(loginBtn, false);
+                if (namaInput) namaInput.disabled = false;
             }
-            
-            currentUser = user;
-            localStorage.setItem('currentUser', JSON.stringify(user));
-            tampilkanAplikasi();
         }
         
         function logout() {
@@ -511,12 +694,10 @@
         
         // ============ FUNGSI CATATAN ============
         async function kirimPesan() {
-            // Debug: cek apakah fungsi terpanggil
-            console.log('Fungsi kirimPesan dipanggil');
-            
             const pesanInput = document.getElementById('pesan');
+            const kirimBtn = document.querySelector('.btn-kirim');
+            
             if (!pesanInput) {
-                console.error('Element pesan tidak ditemukan');
                 alert('Error: Form pesan tidak ditemukan');
                 return;
             }
@@ -532,6 +713,9 @@
                 alert('❌ Anda belum login!');
                 return;
             }
+            
+            // Tampilkan loading pada tombol
+            setButtonLoading(kirimBtn, true, 'Kirim');
             
             try {
                 const semuaData = await ambilSemuaData();
@@ -554,9 +738,12 @@
                 
                 const berhasil = await simpanSemuaData(semuaData);
                 
+                // Simulasi delay untuk efek loading
+                await new Promise(resolve => setTimeout(resolve, 500));
+                
                 if (berhasil) {
                     pesanInput.value = '';
-                    alert('✅ Pesan berhasil dikirim!');
+                    tampilkanPesan('✅ Pesan berhasil dikirim!', 'success');
                     await tampilkanSemuaPesan();
                 } else {
                     alert('❌ Gagal mengirim pesan! Coba lagi.');
@@ -564,88 +751,154 @@
             } catch(error) {
                 console.error('Error kirim pesan:', error);
                 alert('❌ Terjadi error: ' + error.message);
+            } finally {
+                setButtonLoading(kirimBtn, false);
             }
         }
         
         async function tampilkanSemuaPesan() {
             const container = document.getElementById('notesContainer');
+            const refreshBtn = document.querySelector('.btn-refresh');
+            
             if (!container) return;
             
-            container.innerHTML = '<div class="loading">📡 Memuat pesan...</div>';
+            // Tampilkan loading di container
+            container.innerHTML = `
+                <div class="loading-spinner">
+                    <div class="spinner"></div>
+                    <div class="loading-text">Memuat pesan...</div>
+                </div>
+            `;
             
-            const semuaData = await ambilSemuaData();
-            const semuaPesan = semuaData.notes || [];
+            // Disable refresh button selama loading
+            if (refreshBtn) refreshBtn.disabled = true;
             
-            if (semuaPesan.length === 0) {
-                container.innerHTML = `
-                    <div class="empty-state">
-                        <div class="emoji">💬</div>
-                        <p>Belum ada pesan. Kirim pesan pertama Anda!</p>
-                    </div>
-                `;
-                return;
-            }
-            
-            let html = '';
-            for (let pesan of semuaPesan) {
-                const isOwner = currentUser && pesan.userId === currentUser.id;
-                html += `
-                    <div class="note-card">
-                        <div class="note-header">
-                            <div class="sender-info">
-                                <div class="sender-avatar-small">
-                                    ${escapeHtml(pesan.userName.charAt(0).toUpperCase())}
+            try {
+                const semuaData = await ambilSemuaData();
+                const semuaPesan = semuaData.notes || [];
+                
+                // Simulasi delay untuk loading effect
+                await new Promise(resolve => setTimeout(resolve, 300));
+                
+                if (semuaPesan.length === 0) {
+                    container.innerHTML = `
+                        <div class="empty-state fade-in">
+                            <div class="emoji">💬</div>
+                            <p>Belum ada pesan. Kirim pesan pertama Anda!</p>
+                        </div>
+                    `;
+                    return;
+                }
+                
+                let html = '';
+                for (let pesan of semuaPesan) {
+                    const isOwner = currentUser && pesan.userId === currentUser.id;
+                    html += `
+                        <div class="note-card fade-in">
+                            <div class="note-header">
+                                <div class="sender-info">
+                                    <div class="sender-avatar-small">
+                                        ${escapeHtml(pesan.userName.charAt(0).toUpperCase())}
+                                    </div>
+                                    <div>
+                                        <div class="sender-name">${escapeHtml(pesan.userName)}</div>
+                                        <div class="sender-id">🆔 ID: ${pesan.userId}</div>
+                                    </div>
                                 </div>
-                                <div>
-                                    <div class="sender-name">${escapeHtml(pesan.userName)}</div>
-                                    <div class="sender-id">🆔 ID: ${pesan.userId}</div>
-                                </div>
+                                <div class="note-time">📅 ${pesan.waktu}</div>
                             </div>
-                            <div class="note-time">📅 ${pesan.waktu}</div>
+                            <div class="note-message">
+                                ${escapeHtml(pesan.pesan)}
+                            </div>
+                            ${isOwner ? `<button class="delete-btn" onclick="hapusPesan(${pesan.id})">🗑️ Hapus</button>` : ''}
                         </div>
-                        <div class="note-message">
-                            ${escapeHtml(pesan.pesan)}
-                        </div>
-                        ${isOwner ? `<button class="delete-btn" onclick="hapusPesan(${pesan.id})">🗑️ Hapus</button>` : ''}
+                    `;
+                }
+                
+                const totalSpan = document.getElementById('totalPesan');
+                if (totalSpan) totalSpan.textContent = semuaPesan.length;
+                
+                container.innerHTML = html;
+            } catch(error) {
+                console.error('Error tampilkan pesan:', error);
+                container.innerHTML = `
+                    <div class="alert alert-error fade-in">
+                        ❌ Gagal memuat pesan. Silakan refresh halaman.
                     </div>
                 `;
+            } finally {
+                if (refreshBtn) refreshBtn.disabled = false;
             }
-            
-            const totalSpan = document.getElementById('totalPesan');
-            if (totalSpan) totalSpan.textContent = semuaPesan.length;
-            
-            container.innerHTML = html;
         }
         
         async function hapusPesan(id) {
             if (!confirm('Yakin ingin menghapus pesan ini?')) return;
             
-            const semuaData = await ambilSemuaData();
-            semuaData.notes = semuaData.notes.filter(item => item.id !== id);
+            // Cari tombol delete yang diklik dan disable
+            const deleteButtons = document.querySelectorAll('.delete-btn');
+            let targetBtn = null;
+            for (let btn of deleteButtons) {
+                if (btn.getAttribute('onclick') === `hapusPesan(${id})`) {
+                    targetBtn = btn;
+                    break;
+                }
+            }
             
-            const berhasil = await simpanSemuaData(semuaData);
+            if (targetBtn) {
+                targetBtn.disabled = true;
+                targetBtn.innerText = 'Menghapus...';
+            }
             
-            if (berhasil) {
-                alert('✅ Pesan dihapus!');
-                await tampilkanSemuaPesan();
-            } else {
-                alert('❌ Gagal menghapus!');
+            try {
+                const semuaData = await ambilSemuaData();
+                semuaData.notes = semuaData.notes.filter(item => item.id !== id);
+                
+                const berhasil = await simpanSemuaData(semuaData);
+                
+                await new Promise(resolve => setTimeout(resolve, 300));
+                
+                if (berhasil) {
+                    tampilkanPesan('✅ Pesan dihapus!', 'success');
+                    await tampilkanSemuaPesan();
+                } else {
+                    alert('❌ Gagal menghapus!');
+                }
+            } catch(error) {
+                console.error('Error hapus pesan:', error);
+                alert('❌ Terjadi error!');
+            } finally {
+                if (targetBtn) {
+                    targetBtn.disabled = false;
+                    targetBtn.innerText = '🗑️ Hapus';
+                }
             }
         }
         
         async function hapusSemuaPesan() {
             if (!confirm('⚠️ PERINGATAN: Ini akan menghapus SEMUA pesan dari semua pengguna! Lanjutkan?')) return;
             
-            const semuaData = await ambilSemuaData();
-            semuaData.notes = [];
+            const hapusBtn = document.querySelector('.btn-hapus-semua');
+            setButtonLoading(hapusBtn, true, 'Hapus Semua');
             
-            const berhasil = await simpanSemuaData(semuaData);
-            
-            if (berhasil) {
-                alert('🗑️ Semua pesan telah dihapus!');
-                await tampilkanSemuaPesan();
-            } else {
-                alert('❌ Gagal menghapus!');
+            try {
+                const semuaData = await ambilSemuaData();
+                semuaData.notes = [];
+                
+                const berhasil = await simpanSemuaData(semuaData);
+                
+                await new Promise(resolve => setTimeout(resolve, 500));
+                
+                if (berhasil) {
+                    tampilkanPesan('🗑️ Semua pesan telah dihapus!', 'success');
+                    await tampilkanSemuaPesan();
+                } else {
+                    alert('❌ Gagal menghapus!');
+                }
+            } catch(error) {
+                console.error('Error hapus semua:', error);
+                alert('❌ Terjadi error!');
+            } finally {
+                setButtonLoading(hapusBtn, false);
             }
         }
         
@@ -653,7 +906,7 @@
         function tampilkanLogin() {
             const app = document.getElementById('app');
             app.innerHTML = `
-                <div class="card login-card">
+                <div class="card login-card fade-in">
                     <div class="header">
                         <div class="login-icon">📝</div>
                         <h1>Papan Pesan</h1>
@@ -677,7 +930,7 @@
         function tampilkanAplikasi() {
             const app = document.getElementById('app');
             app.innerHTML = `
-                <div class="card">
+                <div class="card fade-in">
                     <div class="user-bar">
                         <div class="user-info">
                             <div class="avatar">${escapeHtml(currentUser.nama.charAt(0).toUpperCase())}</div>
@@ -696,7 +949,7 @@
                     <button class="btn-kirim" onclick="kirimPesan()">📤 Kirim</button>
                 </div>
                 
-                <div class="card">
+                <div class="card fade-in">
                     <div class="notes-header">
                         <h2>💬 Semua Pesan</h2>
                         <span id="totalPesan">0</span>
@@ -708,12 +961,30 @@
                     </div>
                     
                     <div id="notesContainer" class="notes-list">
-                        <div class="loading">📡 Memuat pesan...</div>
+                        <div class="loading-spinner">
+                            <div class="spinner"></div>
+                            <div class="loading-text">Memuat pesan...</div>
+                        </div>
                     </div>
                 </div>
             `;
             
             tampilkanSemuaPesan();
+        }
+        
+        function tampilkanPesan(pesan, tipe) {
+            const container = document.getElementById('notesContainer');
+            if (!container) return;
+            
+            const alertDiv = document.createElement('div');
+            alertDiv.className = `alert alert-${tipe} fade-in`;
+            alertDiv.innerHTML = pesan;
+            
+            container.insertBefore(alertDiv, container.firstChild);
+            
+            setTimeout(() => {
+                alertDiv.remove();
+            }, 3000);
         }
         
         function escapeHtml(str) {
