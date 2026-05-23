@@ -3,28 +3,34 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Aplikasi Data - JSONBin + GitHub Pages</title>
+    <title>Aplikasi Catatan dengan Login - JSONBin</title>
     <style>
         * {
             box-sizing: border-box;
         }
         body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            max-width: 600px;
+            max-width: 700px;
             margin: 0 auto;
             padding: 20px;
-            background: #f5f5f5;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
         }
         .container {
             background: white;
             border-radius: 10px;
             padding: 25px;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            box-shadow: 0 10px 40px rgba(0,0,0,0.2);
         }
         h1 {
             color: #333;
             text-align: center;
             margin-bottom: 30px;
+        }
+        h2 {
+            color: #555;
+            font-size: 18px;
+            margin-bottom: 15px;
         }
         input, textarea {
             width: 100%;
@@ -48,15 +54,23 @@
             font-size: 16px;
             margin-right: 10px;
             margin-bottom: 10px;
+            transition: all 0.3s;
         }
         button:hover {
             background: #0056b3;
+            transform: translateY(-2px);
         }
         button.delete-btn {
             background: #dc3545;
         }
         button.delete-btn:hover {
             background: #c82333;
+        }
+        button.logout-btn {
+            background: #6c757d;
+        }
+        button.logout-btn:hover {
+            background: #5a6268;
         }
         .hasil-card {
             background: #f8f9fa;
@@ -71,6 +85,7 @@
             border-radius: 5px;
             padding: 12px;
             margin-bottom: 10px;
+            position: relative;
         }
         .data-item strong {
             color: #007bff;
@@ -78,6 +93,24 @@
         .data-item small {
             color: #999;
             font-size: 12px;
+        }
+        .user-info {
+            background: #e8f4f8;
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .login-box {
+            max-width: 400px;
+            margin: 0 auto;
+            text-align: center;
+        }
+        .login-box input {
+            text-align: center;
+            font-size: 18px;
         }
         .loading {
             text-align: center;
@@ -95,120 +128,243 @@
         hr {
             margin: 20px 0;
         }
+        .avatar {
+            width: 40px;
+            height: 40px;
+            background: #007bff;
+            border-radius: 50%;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: bold;
+            margin-right: 10px;
+        }
+        .welcome-text {
+            display: flex;
+            align-items: center;
+        }
     </style>
 </head>
 <body>
-    <div class="container">
-        <h1>📝 Aplikasi Catatan</h1>
-        
-        <div>
-            <input type="text" id="nama" placeholder="Nama Anda">
-            <textarea id="pesan" placeholder="Tulis pesan atau catatan..."></textarea>
-            <button onclick="simpanData()">💾 Simpan Catatan</button>
-            <button onclick="ambilSemuaData()">🔄 Muat Ulang</button>
-            <button onclick="hapusSemuaData()" class="delete-btn">🗑️ Hapus Semua</button>
-        </div>
-        
-        <hr>
-        
-        <div id="hasil">
-            <div class="loading">📡 Mengambil data dari cloud...</div>
-        </div>
+    <div class="container" id="app">
+        <!-- Tempat untuk menampilkan konten yang berbeda (login atau aplikasi) -->
     </div>
 
     <script>
-        // ✅ SUDAH DIPERBAIKI - Ganti dengan data JSONBin Anda
+        // ============ KONFIGURASI JSONBIN ============
         const API_KEY = '$2a$10$mjq9GqT9KPSNzxJcZzHxxO0LSiDadJfU7fWheRcEQ389dEDUetNfG';
-        const BIN_ID = '6a11c37bee5a733b12094d01';  // ✅ Hanya ID saja, bukan URL lengkap!
-        
-        // URL API JSONBin (benar)
+        const BIN_ID = '6a11c37bee5a733b12094d01';
         const API_URL = `https://api.jsonbin.io/v3/b/${BIN_ID}`;
         
-        // Fungsi untuk menyimpan data baru
-        async function simpanData() {
-            const nama = document.getElementById('nama').value.trim();
-            const pesan = document.getElementById('pesan').value.trim();
-            
-            if (!nama || !pesan) {
-                alert('Mohon isi nama dan pesan terlebih dahulu!');
-                return;
-            }
-            
-            // Ambil data yang sudah ada
-            let dataSaatIni = await ambilDataDariCloud();
-            
-            // Buat entri baru
-            const entriBaru = {
-                id: Date.now(),
-                nama: nama,
-                pesan: pesan,
-                waktu: new Date().toLocaleString('id-ID')
-            };
-            
-            // Tambahkan ke array data
-            if (!dataSaatIni.data || !Array.isArray(dataSaatIni.data)) {
-                dataSaatIni = { data: [] };
-            }
-            dataSaatIni.data.unshift(entriBaru);
-            
-            // Simpan kembali ke cloud
-            try {
-                const response = await fetch(API_URL, {
-                    method: 'PUT',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'X-Master-Key': API_KEY
-                    },
-                    body: JSON.stringify(dataSaatIni)
-                });
-                
-                if (response.ok) {
-                    document.getElementById('nama').value = '';
-                    document.getElementById('pesan').value = '';
-                    tampilkanPesan('✅ Catatan berhasil disimpan!', 'success');
-                    await ambilSemuaData();
-                } else {
-                    const errorData = await response.text();
-                    throw new Error(`Gagal menyimpan: ${response.status} - ${errorData}`);
-                }
-            } catch(error) {
-                tampilkanPesan('❌ Error: ' + error.message, 'error');
-                console.error('Detail error:', error);
+        // ============ VARIABEL GLOBAL ============
+        let currentUser = null;  // Menyimpan data user yang sedang login
+        
+        // ============ FUNGSI UTAMA ============
+        
+        // Cek apakah user sudah login sebelumnya (dari localStorage)
+        function cekSession() {
+            const savedUser = localStorage.getItem('currentUser');
+            if (savedUser) {
+                currentUser = JSON.parse(savedUser);
+                tampilkanAplikasi();
+            } else {
+                tampilkanLogin();
             }
         }
         
-        // Fungsi untuk mengambil semua data dari cloud
-        async function ambilDataDariCloud() {
+        // Fungsi login
+        async function login() {
+            const namaInput = document.getElementById('loginNama');
+            const nama = namaInput.value.trim();
+            
+            if (!nama) {
+                alert('Masukkan nama Anda!');
+                return;
+            }
+            
+            // Cek apakah nama sudah terdaftar di database
+            const semuaUser = await ambilSemuaUser();
+            let user = semuaUser.find(u => u.nama.toLowerCase() === nama.toLowerCase());
+            
+            if (!user) {
+                // Buat user baru
+                user = {
+                    id: Date.now(),
+                    nama: nama,
+                    createdAt: new Date().toLocaleString('id-ID')
+                };
+                
+                // Simpan user baru ke database
+                semuaUser.push(user);
+                await simpanSemuaUser(semuaUser);
+            }
+            
+            // Set current user
+            currentUser = user;
+            
+            // Simpan ke localStorage agar tidak perlu login lagi
+            localStorage.setItem('currentUser', JSON.stringify(user));
+            
+            // Tampilkan aplikasi utama
+            tampilkanAplikasi();
+        }
+        
+        // Fungsi logout
+        function logout() {
+            if (confirm('Yakin ingin logout?')) {
+                currentUser = null;
+                localStorage.removeItem('currentUser');
+                tampilkanLogin();
+            }
+        }
+        
+        // Ambil semua user dari JSONBin
+        async function ambilSemuaUser() {
             try {
                 const response = await fetch(`${API_URL}/latest`, {
                     headers: { 'X-Master-Key': API_KEY }
                 });
                 
                 if (!response.ok) {
-                    // Jika bin kosong atau belum ada struktur data
-                    if (response.status === 404) {
-                        return { data: [] };
-                    }
-                    throw new Error(`HTTP ${response.status}`);
+                    // Jika belum ada data, return array kosong
+                    return { users: [] };
                 }
                 
                 const result = await response.json();
-                return result.record || { data: [] };
+                if (!result.record.users) {
+                    return { users: [] };
+                }
+                return result.record;
             } catch(error) {
-                console.error('Error ambil data:', error);
-                return { data: [] };
+                console.error('Error ambil user:', error);
+                return { users: [] };
             }
         }
         
-        // Fungsi untuk menampilkan semua data
-        async function ambilSemuaData() {
+        // Simpan semua user ke JSONBin
+        async function simpanSemuaUser(data) {
+            try {
+                // Pastikan struktur data tetap
+                const dataLengkap = {
+                    users: data.users || data,
+                    notes: data.notes || {}
+                };
+                
+                const response = await fetch(API_URL, {
+                    method: 'PUT',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-Master-Key': API_KEY
+                    },
+                    body: JSON.stringify(dataLengkap)
+                });
+                
+                return response.ok;
+            } catch(error) {
+                console.error('Error simpan user:', error);
+                return false;
+            }
+        }
+        
+        // Ambil semua catatan dari JSONBin
+        async function ambilSemuaCatatan() {
+            try {
+                const response = await fetch(`${API_URL}/latest`, {
+                    headers: { 'X-Master-Key': API_KEY }
+                });
+                
+                if (!response.ok) {
+                    return { notes: {} };
+                }
+                
+                const result = await response.json();
+                if (!result.record.notes) {
+                    return { notes: {} };
+                }
+                return result.record;
+            } catch(error) {
+                console.error('Error ambil catatan:', error);
+                return { notes: {} };
+            }
+        }
+        
+        // Simpan semua catatan ke JSONBin
+        async function simpanSemuaCatatan(data) {
+            try {
+                // Ambil data user yang sudah ada
+                const userData = await ambilSemuaUser();
+                const dataLengkap = {
+                    users: userData.users || [],
+                    notes: data.notes || {}
+                };
+                
+                const response = await fetch(API_URL, {
+                    method: 'PUT',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-Master-Key': API_KEY
+                    },
+                    body: JSON.stringify(dataLengkap)
+                });
+                
+                return response.ok;
+            } catch(error) {
+                console.error('Error simpan catatan:', error);
+                return false;
+            }
+        }
+        
+        // Simpan catatan baru
+        async function simpanData() {
+            const pesan = document.getElementById('pesan').value.trim();
+            
+            if (!pesan) {
+                alert('Tulis pesan atau catatan terlebih dahulu!');
+                return;
+            }
+            
+            // Ambil data yang sudah ada
+            const dataCloud = await ambilSemuaCatatan();
+            if (!dataCloud.notes[currentUser.id]) {
+                dataCloud.notes[currentUser.id] = [];
+            }
+            
+            // Buat entri baru
+            const entriBaru = {
+                id: Date.now(),
+                userId: currentUser.id,
+                userName: currentUser.nama,
+                pesan: pesan,
+                waktu: new Date().toLocaleString('id-ID')
+            };
+            
+            // Tambahkan ke array catatan user
+            dataCloud.notes[currentUser.id].unshift(entriBaru);
+            
+            // Simpan kembali ke cloud
+            const berhasil = await simpanSemuaCatatan(dataCloud);
+            
+            if (berhasil) {
+                document.getElementById('pesan').value = '';
+                tampilkanPesan('✅ Catatan berhasil disimpan!', 'success');
+                await tampilkanCatatanUser();
+            } else {
+                tampilkanPesan('❌ Gagal menyimpan catatan!', 'error');
+            }
+        }
+        
+        // Tampilkan catatan milik user yang login
+        async function tampilkanCatatanUser() {
             const hasilDiv = document.getElementById('hasil');
-            hasilDiv.innerHTML = '<div class="loading">📡 Memuat data...</div>';
+            if (!hasilDiv) return;
             
-            const dataCloud = await ambilDataDariCloud();
-            const dataList = dataCloud.data || [];
+            hasilDiv.innerHTML = '<div class="loading">📡 Memuat catatan...</div>';
             
-            if (dataList.length === 0) {
+            const dataCloud = await ambilSemuaCatatan();
+            const catatanUser = dataCloud.notes[currentUser?.id] || [];
+            
+            if (catatanUser.length === 0) {
                 hasilDiv.innerHTML = `
                     <div class="hasil-card">
                         <p style="text-align:center; color:#666;">✨ Belum ada catatan. Buat catatan pertama Anda! ✨</p>
@@ -217,12 +373,13 @@
                 return;
             }
             
+            // Tampilkan semua catatan user
             let html = '';
-            dataList.forEach(item => {
+            catatanUser.forEach(item => {
                 html += `
                     <div class="data-item">
-                        <strong>👤 ${escapeHtml(item.nama)}</strong><br>
-                        <p>📝 ${escapeHtml(item.pesan)}</p>
+                        <strong>📝 Catatan</strong><br>
+                        <p>${escapeHtml(item.pesan)}</p>
                         <small>🕐 ${item.waktu}</small>
                         <br>
                         <button onclick="hapusSatuData(${item.id})" style="background:#dc3545; padding:5px 10px; font-size:12px; margin-top:8px;">🗑️ Hapus</button>
@@ -232,70 +389,114 @@
             
             hasilDiv.innerHTML = `
                 <div class="hasil-card">
-                    <strong>📋 Total Catatan: ${dataList.length}</strong>
+                    <strong>📋 Total Catatan: ${catatanUser.length}</strong>
                     ${html}
                 </div>
             `;
         }
         
-        // Fungsi hapus satu data
+        // Hapus satu catatan
         async function hapusSatuData(id) {
             if (!confirm('Yakin ingin menghapus catatan ini?')) return;
             
-            let dataSaatIni = await ambilDataDariCloud();
-            dataSaatIni.data = dataSaatIni.data.filter(item => item.id !== id);
+            const dataCloud = await ambilSemuaCatatan();
+            const catatanUser = dataCloud.notes[currentUser.id] || [];
+            dataCloud.notes[currentUser.id] = catatanUser.filter(item => item.id !== id);
             
-            try {
-                const response = await fetch(API_URL, {
-                    method: 'PUT',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'X-Master-Key': API_KEY
-                    },
-                    body: JSON.stringify(dataSaatIni)
-                });
-                
-                if (response.ok) {
-                    tampilkanPesan('✅ Catatan dihapus!', 'success');
-                    await ambilSemuaData();
-                } else {
-                    throw new Error('Gagal menghapus');
-                }
-            } catch(error) {
-                tampilkanPesan('❌ Error: ' + error.message, 'error');
+            const berhasil = await simpanSemuaCatatan(dataCloud);
+            
+            if (berhasil) {
+                tampilkanPesan('✅ Catatan dihapus!', 'success');
+                await tampilkanCatatanUser();
+            } else {
+                tampilkanPesan('❌ Gagal menghapus!', 'error');
             }
         }
         
-        // Fungsi hapus semua data
+        // Hapus semua catatan user
         async function hapusSemuaData() {
-            if (!confirm('⚠️ PERINGATAN: Ini akan menghapus SEMUA catatan! Lanjutkan?')) return;
+            if (!confirm('⚠️ PERINGATAN: Ini akan menghapus SEMUA catatan Anda! Lanjutkan?')) return;
             
-            const dataKosong = { data: [] };
+            const dataCloud = await ambilSemuaCatatan();
+            dataCloud.notes[currentUser.id] = [];
             
-            try {
-                const response = await fetch(API_URL, {
-                    method: 'PUT',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'X-Master-Key': API_KEY
-                    },
-                    body: JSON.stringify(dataKosong)
-                });
-                
-                if (response.ok) {
-                    tampilkanPesan('🗑️ Semua catatan telah dihapus!', 'success');
-                    await ambilSemuaData();
-                } else {
-                    throw new Error('Gagal menghapus');
-                }
-            } catch(error) {
-                tampilkanPesan('❌ Error: ' + error.message, 'error');
+            const berhasil = await simpanSemuaCatatan(dataCloud);
+            
+            if (berhasil) {
+                tampilkanPesan('🗑️ Semua catatan telah dihapus!', 'success');
+                await tampilkanCatatanUser();
+            } else {
+                tampilkanPesan('❌ Gagal menghapus!', 'error');
             }
         }
         
-        // Fungsi tampilkan pesan
+        // Tampilkan halaman login
+        function tampilkanLogin() {
+            const app = document.getElementById('app');
+            app.innerHTML = `
+                <div class="login-box">
+                    <h1>📝 Aplikasi Catatan</h1>
+                    <div style="text-align: center; margin-bottom: 30px;">
+                        <div style="font-size: 50px;">👋</div>
+                        <p style="color: #666;">Selamat datang! Silakan masuk dengan nama Anda</p>
+                    </div>
+                    <input type="text" id="loginNama" placeholder="Masukkan nama Anda" autocomplete="off">
+                    <button onclick="login()" style="width: 100%;">🚀 Masuk</button>
+                    <p style="text-align: center; margin-top: 20px; font-size: 12px; color: #999;">
+                        Nama akan disimpan secara permanen.<br>
+                        Catatan Anda hanya bisa dilihat oleh Anda sendiri.
+                    </p>
+                </div>
+            `;
+            
+            // Auto focus ke input
+            setTimeout(() => {
+                const input = document.getElementById('loginNama');
+                if (input) input.focus();
+            }, 100);
+        }
+        
+        // Tampilkan aplikasi utama
+        function tampilkanAplikasi() {
+            const app = document.getElementById('app');
+            app.innerHTML = `
+                <div>
+                    <div class="user-info">
+                        <div class="welcome-text">
+                            <div class="avatar">${currentUser.nama.charAt(0).toUpperCase()}</div>
+                            <div>
+                                <strong>${escapeHtml(currentUser.nama)}</strong><br>
+                                <small style="color: #666;">ID: ${currentUser.id}</small>
+                            </div>
+                        </div>
+                        <button onclick="logout()" class="logout-btn">🚪 Logout</button>
+                    </div>
+                    
+                    <h2>✏️ Buat Catatan Baru</h2>
+                    <div>
+                        <textarea id="pesan" placeholder="Tulis catatan Anda di sini..."></textarea>
+                        <button onclick="simpanData()">💾 Simpan Catatan</button>
+                        <button onclick="tampilkanCatatanUser()">🔄 Muat Ulang</button>
+                        <button onclick="hapusSemuaData()" class="delete-btn">🗑️ Hapus Semua</button>
+                    </div>
+                    
+                    <hr>
+                    
+                    <div id="hasil">
+                        <div class="loading">📡 Memuat catatan...</div>
+                    </div>
+                </div>
+            `;
+            
+            // Load catatan user
+            tampilkanCatatanUser();
+        }
+        
+        // Tampilkan pesan
         function tampilkanPesan(pesan, tipe) {
             const hasilDiv = document.getElementById('hasil');
+            if (!hasilDiv) return;
+            
             const pesanDiv = document.createElement('div');
             pesanDiv.className = tipe;
             pesanDiv.style.padding = '10px';
@@ -312,7 +513,7 @@
             }, 3000);
         }
         
-        // Fungsi keamanan
+        // Escape HTML
         function escapeHtml(str) {
             if (!str) return '';
             return str
@@ -323,8 +524,9 @@
                 .replace(/'/g, '&#39;');
         }
         
-        // Load data saat halaman dibuka
-        ambilSemuaData();
+        // ============ INISIALISASI ============
+        // Cek session saat halaman dimuat
+        cekSession();
     </script>
 </body>
-</html>
+</html>8u
