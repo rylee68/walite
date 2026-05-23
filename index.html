@@ -1,37 +1,68 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>Coba Chat</title>
+    <title>Test Supabase</title>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 </head>
 <body>
-    <h2>Test Koneksi</h2>
-    <button onclick="test()">Klik Test</button>
-    <div id="hasil"></div>
+    <h1>Test Supabase Connection</h1>
+    <div id="log"></div>
 
     <script>
+        const log = document.getElementById('log');
+        
+        function addLog(msg, isError = false) {
+            const p = document.createElement('p');
+            p.textContent = msg;
+            p.style.color = isError ? 'red' : 'green';
+            log.appendChild(p);
+            console.log(msg);
+        }
+        
+        addLog('1. Memulai test...');
+        
         const SUPABASE_URL = 'https://fettznnppsfxyaogvgo.supabase.co';
         const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImZldHR6bm5wcHNmeHlhb2d2Z2JvIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzk1MTAyMTAsImV4cCI6MjA5NTA4NjIxMH0.W3a3jWj_vpzCvHY6xVeS6zGdUvleY1n1c1hjrNHM824';
         
-        const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+        addLog('2. URL: ' + SUPABASE_URL);
+        addLog('3. Key: ' + SUPABASE_ANON_KEY.substring(0, 30) + '...');
         
-        async function test() {
-            const hasil = document.getElementById('hasil');
-            hasil.innerHTML = 'Mencoba...';
+        try {
+            const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+            addLog('4. Supabase client created');
             
-            // Test insert
-            const { data, error } = await supabase
-                .from('messages')
-                .insert([{ username: 'Tester', message: 'Test ' + new Date().toLocaleTimeString() }])
-                .select();
-            
-            if (error) {
-                hasil.innerHTML = '❌ ERROR: ' + error.message;
-                hasil.style.color = 'red';
-            } else {
-                hasil.innerHTML = '✅ SUKSES! Pesan terkirim. ID: ' + data[0].id;
-                hasil.style.color = 'green';
+            async function testConnection() {
+                addLog('5. Mencoba koneksi ke database...');
+                
+                const { data, error } = await supabase
+                    .from('messages')
+                    .select('*')
+                    .limit(1);
+                
+                if (error) {
+                    addLog('6. ERROR: ' + error.message, true);
+                    addLog('7. Detail: ' + JSON.stringify(error), true);
+                } else {
+                    addLog('6. SUCCESS! Terhubung ke database', false);
+                    addLog('7. Data: ' + JSON.stringify(data), false);
+                    
+                    // Coba insert
+                    addLog('8. Mencoba insert pesan...');
+                    const { error: insertError } = await supabase
+                        .from('messages')
+                        .insert([{ username: 'Tester', message: 'Test connection at ' + new Date().toLocaleTimeString() }]);
+                    
+                    if (insertError) {
+                        addLog('9. Insert ERROR: ' + insertError.message, true);
+                    } else {
+                        addLog('9. Insert SUCCESS!', false);
+                    }
+                }
             }
+            
+            testConnection();
+        } catch(e) {
+            addLog('ERROR: ' + e.message, true);
         }
     </script>
 </body>
