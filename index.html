@@ -23,7 +23,6 @@
             margin: 0 auto;
         }
         
-        /* Card Style */
         .card {
             background: white;
             border-radius: 20px;
@@ -32,7 +31,6 @@
             margin-bottom: 20px;
         }
         
-        /* Header */
         .header {
             text-align: center;
             margin-bottom: 30px;
@@ -49,7 +47,6 @@
             font-size: 0.9em;
         }
         
-        /* User Info Bar */
         .user-bar {
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             border-radius: 15px;
@@ -77,7 +74,6 @@
             justify-content: center;
             font-size: 24px;
             font-weight: bold;
-            backdrop-filter: blur(10px);
         }
         
         .user-details h3 {
@@ -103,10 +99,8 @@
         
         .logout-btn:hover {
             background: rgba(255,255,255,0.3);
-            transform: translateY(-2px);
         }
         
-        /* Form Kirim Pesan */
         .form-group {
             margin-bottom: 20px;
         }
@@ -126,7 +120,6 @@
             font-size: 16px;
             font-family: inherit;
             resize: vertical;
-            transition: border-color 0.3s;
         }
         
         .form-group textarea:focus {
@@ -160,7 +153,6 @@
             border-radius: 25px;
             cursor: pointer;
             margin-right: 10px;
-            transition: all 0.3s;
         }
         
         .btn-refresh:hover {
@@ -174,14 +166,12 @@
             padding: 10px 20px;
             border-radius: 25px;
             cursor: pointer;
-            transition: all 0.3s;
         }
         
         .btn-hapus-semua:hover {
             background: #c82333;
         }
         
-        /* Header Catatan */
         .notes-header {
             display: flex;
             justify-content: space-between;
@@ -204,13 +194,11 @@
             font-size: 0.8em;
         }
         
-        /* List Catatan */
         .notes-list {
             max-height: 500px;
             overflow-y: auto;
         }
         
-        /* Card Catatan */
         .note-card {
             background: #f8f9fa;
             border-radius: 15px;
@@ -238,7 +226,6 @@
             display: flex;
             align-items: center;
             gap: 10px;
-            flex-wrap: wrap;
         }
         
         .sender-avatar-small {
@@ -286,15 +273,12 @@
             cursor: pointer;
             font-size: 12px;
             margin-left: 45px;
-            transition: all 0.3s;
         }
         
         .delete-btn:hover {
             background: #c82333;
-            transform: scale(1.05);
         }
         
-        /* Empty State */
         .empty-state {
             text-align: center;
             padding: 50px 20px;
@@ -306,7 +290,6 @@
             margin-bottom: 15px;
         }
         
-        /* Login Box */
         .login-card {
             text-align: center;
         }
@@ -349,7 +332,6 @@
             color: #999;
         }
         
-        /* Scrollbar */
         .notes-list::-webkit-scrollbar {
             width: 6px;
         }
@@ -364,14 +346,12 @@
             border-radius: 10px;
         }
         
-        /* Loading */
         .loading {
             text-align: center;
             padding: 40px;
             color: #999;
         }
         
-        /* Pesan Alert */
         .alert {
             padding: 12px;
             border-radius: 10px;
@@ -430,35 +410,51 @@
                 });
                 
                 if (!response.ok) {
+                    // Jika bin kosong atau error, buat struktur default
+                    console.log('Membuat struktur data baru...');
                     return { users: [], notes: [] };
                 }
                 
                 const result = await response.json();
                 const data = result.record;
                 
+                // Pastikan struktur data lengkap
                 return {
                     users: data.users || [],
                     notes: data.notes || []
                 };
             } catch(error) {
-                console.error('Error:', error);
+                console.error('Error ambil data:', error);
                 return { users: [], notes: [] };
             }
         }
         
         async function simpanSemuaData(data) {
             try {
+                // Pastikan data memiliki struktur yang benar
+                const dataToSave = {
+                    users: data.users || [],
+                    notes: data.notes || []
+                };
+                
                 const response = await fetch(API_URL, {
                     method: 'PUT',
                     headers: {
                         'Content-Type': 'application/json',
                         'X-Master-Key': API_KEY
                     },
-                    body: JSON.stringify(data)
+                    body: JSON.stringify(dataToSave)
                 });
-                return response.ok;
+                
+                if (!response.ok) {
+                    const errorText = await response.text();
+                    console.error('Response error:', errorText);
+                    return false;
+                }
+                
+                return true;
             } catch(error) {
-                console.error('Error:', error);
+                console.error('Error simpan data:', error);
                 return false;
             }
         }
@@ -493,7 +489,11 @@
                     createdAt: new Date().toLocaleString('id-ID')
                 };
                 semuaData.users.push(user);
-                await simpanSemuaData(semuaData);
+                const berhasil = await simpanSemuaData(semuaData);
+                if (!berhasil) {
+                    alert('Gagal menyimpan data user!');
+                    return;
+                }
             }
             
             currentUser = user;
@@ -511,40 +511,59 @@
         
         // ============ FUNGSI CATATAN ============
         async function kirimPesan() {
+            // Debug: cek apakah fungsi terpanggil
+            console.log('Fungsi kirimPesan dipanggil');
+            
             const pesanInput = document.getElementById('pesan');
-            const pesan = pesanInput?.value.trim();
+            if (!pesanInput) {
+                console.error('Element pesan tidak ditemukan');
+                alert('Error: Form pesan tidak ditemukan');
+                return;
+            }
+            
+            const pesan = pesanInput.value.trim();
             
             if (!pesan) {
                 alert('✏️ Silakan tulis pesan terlebih dahulu!');
                 return;
             }
             
-            const semuaData = await ambilSemuaData();
+            if (!currentUser) {
+                alert('❌ Anda belum login!');
+                return;
+            }
             
-            const pesanBaru = {
-                id: Date.now(),
-                userId: currentUser.id,
-                userName: currentUser.nama,
-                pesan: pesan,
-                waktu: new Date().toLocaleString('id-ID', {
-                    day: '2-digit',
-                    month: '2-digit',
-                    year: 'numeric',
-                    hour: '2-digit',
-                    minute: '2-digit'
-                })
-            };
-            
-            semuaData.notes.unshift(pesanBaru);
-            
-            const berhasil = await simpanSemuaData(semuaData);
-            
-            if (berhasil) {
-                pesanInput.value = '';
-                tampilkanPesan('✅ Pesan berhasil dikirim!', 'success');
-                await tampilkanSemuaPesan();
-            } else {
-                tampilkanPesan('❌ Gagal mengirim pesan!', 'error');
+            try {
+                const semuaData = await ambilSemuaData();
+                
+                const pesanBaru = {
+                    id: Date.now(),
+                    userId: currentUser.id,
+                    userName: currentUser.nama,
+                    pesan: pesan,
+                    waktu: new Date().toLocaleString('id-ID', {
+                        day: '2-digit',
+                        month: '2-digit',
+                        year: 'numeric',
+                        hour: '2-digit',
+                        minute: '2-digit'
+                    })
+                };
+                
+                semuaData.notes.unshift(pesanBaru);
+                
+                const berhasil = await simpanSemuaData(semuaData);
+                
+                if (berhasil) {
+                    pesanInput.value = '';
+                    alert('✅ Pesan berhasil dikirim!');
+                    await tampilkanSemuaPesan();
+                } else {
+                    alert('❌ Gagal mengirim pesan! Coba lagi.');
+                }
+            } catch(error) {
+                console.error('Error kirim pesan:', error);
+                alert('❌ Terjadi error: ' + error.message);
             }
         }
         
@@ -592,7 +611,6 @@
                 `;
             }
             
-            // Update total pesan
             const totalSpan = document.getElementById('totalPesan');
             if (totalSpan) totalSpan.textContent = semuaPesan.length;
             
@@ -608,10 +626,10 @@
             const berhasil = await simpanSemuaData(semuaData);
             
             if (berhasil) {
-                tampilkanPesan('✅ Pesan dihapus!', 'success');
+                alert('✅ Pesan dihapus!');
                 await tampilkanSemuaPesan();
             } else {
-                tampilkanPesan('❌ Gagal menghapus!', 'error');
+                alert('❌ Gagal menghapus!');
             }
         }
         
@@ -624,10 +642,10 @@
             const berhasil = await simpanSemuaData(semuaData);
             
             if (berhasil) {
-                tampilkanPesan('🗑️ Semua pesan telah dihapus!', 'success');
+                alert('🗑️ Semua pesan telah dihapus!');
                 await tampilkanSemuaPesan();
             } else {
-                tampilkanPesan('❌ Gagal menghapus!', 'error');
+                alert('❌ Gagal menghapus!');
             }
         }
         
@@ -696,21 +714,6 @@
             `;
             
             tampilkanSemuaPesan();
-        }
-        
-        function tampilkanPesan(pesan, tipe) {
-            const container = document.getElementById('notesContainer');
-            if (!container) return;
-            
-            const alertDiv = document.createElement('div');
-            alertDiv.className = `alert alert-${tipe}`;
-            alertDiv.innerHTML = pesan;
-            
-            container.insertBefore(alertDiv, container.firstChild);
-            
-            setTimeout(() => {
-                alertDiv.remove();
-            }, 3000);
         }
         
         function escapeHtml(str) {
