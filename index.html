@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Coba Chat</title>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+</head>
+<body>
+    <h2>Test Koneksi</h2>
+    <button onclick="test()">Klik Test</button>
+    <div id="hasil"></div>
+
+    <script>
+        const SUPABASE_URL = 'https://fettznnppsfxyaogvgo.supabase.co';
+        const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImZldHR6bm5wcHNmeHlhb2d2Z2JvIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzk1MTAyMTAsImV4cCI6MjA5NTA4NjIxMH0.W3a3jWj_vpzCvHY6xVeS6zGdUvleY1n1c1hjrNHM824';
+        
+        const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+        
+        async function test() {
+            const hasil = document.getElementById('hasil');
+            hasil.innerHTML = 'Mencoba...';
+            
+            // Test insert
+            const { data, error } = await supabase
+                .from('messages')
+                .insert([{ username: 'Tester', message: 'Test ' + new Date().toLocaleTimeString() }])
+                .select();
+            
+            if (error) {
+                hasil.innerHTML = '❌ ERROR: ' + error.message;
+                hasil.style.color = 'red';
+            } else {
+                hasil.innerHTML = '✅ SUKSES! Pesan terkirim. ID: ' + data[0].id;
+                hasil.style.color = 'green';
+            }
+        }
+    </script>
+</body>
+</html>
