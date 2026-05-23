@@ -1,81 +1,186 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>Test Simple Chat</title>
+    <title>Simple Chat - Fixed</title>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <style>
+        body { font-family: Arial; padding: 20px; max-width: 600px; margin: 0 auto; }
+        #messages { border: 1px solid #ccc; height: 400px; overflow: auto; padding: 10px; margin: 10px 0; background: #f9f9f9; }
+        .message { margin: 5px 0; padding: 5px; border-bottom: 1px solid #eee; }
+        .username { font-weight: bold; color: #0066cc; }
+        .time { font-size: 11px; color: #999; margin-left: 10px; }
+        input, button { padding: 8px; margin: 5px; }
+        input { width: 200px; }
+        button { cursor: pointer; background: #0066cc; color: white; border: none; border-radius: 4px; }
+        button:hover { background: #0052a3; }
+        .error { color: red; margin: 10px 0; }
+        .success { color: green; margin: 10px 0; }
+    </style>
 </head>
 <body>
-    <h1>Test Chat Connection</h1>
-    <div>
-        <input type="text" id="username" placeholder="Username">
+    <h1>💬 Simple Chat</h1>
+    
+    <div id="status" class="success">Loading...</div>
+    
+    <div id="loginBox">
+        <input type="text" id="username" placeholder="Username" autocomplete="off">
         <button onclick="login()">Login</button>
     </div>
-    <div id="chatArea" style="display:none">
-        <div id="messages" style="border:1px solid #ccc; height:300px; overflow:auto; margin:10px 0"></div>
-        <input type="text" id="message" placeholder="Pesan">
-        <button onclick="sendMessage()">Kirim</button>
+    
+    <div id="chatBox" style="display:none">
+        <div id="messages"></div>
+        <div>
+            <input type="text" id="message" placeholder="Ketik pesan..." autocomplete="off" style="width: 70%">
+            <button onclick="sendMessage()">Kirim</button>
+        </div>
     </div>
 
     <script>
-        // GANTI DENGAN ANON KEY ANDA!!!
+        // ========== GANTI DENGAN DATA SUPABASE ANDA ==========
         const SUPABASE_URL = 'https://fettznnppsfxyaogvgbo.supabase.co';
-        const SUPABASE_ANON_KEY = 'sb_publishable_rhUpbNaUlgj-p-p28HaGeQ_KoxIIVkV';  // <<< GANTI INI dengan anon key asli
+        const SUPABASE_ANON_KEY = 'b_publishable_rhUpbNaUlgj-p-p28HaGeQ_KoxIIVkV';  // GANTI INI!
+        // ===================================================
         
         const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
         let currentUser = '';
         
-        async function login() {
-            currentUser = document.getElementById('username').value;
-            if(!currentUser) return alert('Isi username');
-            
-            document.getElementById('chatArea').style.display = 'block';
-            await loadMessages();
-            subscribeToMessages();
+        // Tampilkan status
+        function setStatus(msg, isError = false) {
+            const statusDiv = document.getElementById('status');
+            statusDiv.textContent = msg;
+            statusDiv.className = isError ? 'error' : 'success';
+            console.log(msg);
         }
         
-        async function loadMessages() {
-            const { data, error } = await supabase
-                .from('messages')
-                .select('*')
-                .order('created_at', { ascending: true });
-            
-            if(error) {
-                alert('Error: ' + error.message);
+        // Login function
+        window.login = async function() {
+            currentUser = document.getElementById('username').value.trim();
+            if (!currentUser) {
+                alert('Masukkan username!');
                 return;
             }
             
+            setStatus('Mencoba koneksi ke database...');
+            
+            // Test koneksi dulu
+            const { error: testError } = await supabase.from('messages').select('count', { count: 'exact', head: true });
+            
+            if (testError) {
+                setStatus('❌ Gagal konek: ' + testError.message, true);
+                alert('Error koneksi: ' + testError.message + '\n\nPastikan anon key sudah benar!');
+                return;
+            }
+            
+            setStatus('✅ Berhasil login sebagai: ' + currentUser);
+            document.getElementById('loginBox').style.display = 'none';
+            document.getElementById('chatBox').style.display = 'block';
+            
+            await loadMessages();
+            subscribeToMessages();
+        };
+        
+        // Load messages
+        async function loadMessages() {
+            setStatus('Loading pesan...');
+            
+            const { data, error } = await supabase
+                .from('messages')
+                .select('*')
+                .order('created_at', { ascending: true })
+                .limit(50);
+            
+            if (error) {
+                setStatus('❌ Gagal load: ' + error.message, true);
+                return;
+            }
+            
+            setStatus('✅ ' + (data?.length || 0) + ' pesan dimuat');
+            
             const messagesDiv = document.getElementById('messages');
             messagesDiv.innerHTML = '';
+            
+            if (!data || data.length === 0) {
+                messagesDiv.innerHTML = '<div style="text-align:center;color:#999;">Belum ada pesan. Kirim pesan pertama!</div>';
+                return;
+            }
+            
             data.forEach(msg => {
-                messagesDiv.innerHTML += `<div><b>${msg.username}</b>: ${msg.message} <small>${new Date(msg.created_at).toLocaleTimeString()}</small></div>`;
+                messagesDiv.innerHTML += `
+                    <div class="message">
+                        <span class="username">${escapeHtml(msg.username)}</span>
+                        <span class="time">${new Date(msg.created_at).toLocaleTimeString()}</span>
+                        <div>${escapeHtml(msg.message)}</div>
+                    </div>
+                `;
             });
+            
+            messagesDiv.scrollTop = messagesDiv.scrollHeight;
         }
         
-        async function sendMessage() {
-            const msg = document.getElementById('message').value;
-            if(!msg) return;
+        // Send message
+        window.sendMessage = async function() {
+            const msgInput = document.getElementById('message');
+            const message = msgInput.value.trim();
+            
+            if (!message) return;
             
             const { error } = await supabase
                 .from('messages')
-                .insert([{ username: currentUser, message: msg }]);
+                .insert([{ username: currentUser, message: message }]);
             
-            if(error) alert('Error: ' + error.message);
-            else document.getElementById('message').value = '';
-        }
+            if (error) {
+                setStatus('❌ Gagal kirim: ' + error.message, true);
+                alert('Gagal kirim: ' + error.message);
+            } else {
+                msgInput.value = '';
+                setStatus('✅ Pesan terkirim!');
+            }
+        };
         
+        // Subscribe realtime
         function subscribeToMessages() {
             supabase
-                .channel('messages')
-                .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'messages' }, 
+                .channel('messages-channel')
+                .on('postgres_changes', 
+                    { event: 'INSERT', schema: 'public', table: 'messages' },
                     (payload) => {
                         const messagesDiv = document.getElementById('messages');
-                        messagesDiv.innerHTML += `<div><b>${payload.new.username}</b>: ${payload.new.message} <small>${new Date(payload.new.created_at).toLocaleTimeString()}</small></div>`;
+                        
+                        // Hapus placeholder jika ada
+                        if (messagesDiv.children.length === 1 && messagesDiv.children[0].innerText.includes('Belum ada pesan')) {
+                            messagesDiv.innerHTML = '';
+                        }
+                        
+                        messagesDiv.innerHTML += `
+                            <div class="message">
+                                <span class="username">${escapeHtml(payload.new.username)}</span>
+                                <span class="time">${new Date(payload.new.created_at).toLocaleTimeString()}</span>
+                                <div>${escapeHtml(payload.new.message)}</div>
+                            </div>
+                        `;
                         messagesDiv.scrollTop = messagesDiv.scrollHeight;
+                        setStatus('✅ Pesan baru dari ' + payload.new.username);
                     })
                 .subscribe();
         }
         
-        console.log('Script loaded, Supabase URL:', SUPABASE_URL);
+        function escapeHtml(text) {
+            const div = document.createElement('div');
+            div.textContent = text;
+            return div.innerHTML;
+        }
+        
+        // Enter key
+        document.addEventListener('DOMContentLoaded', () => {
+            document.getElementById('username').addEventListener('keypress', (e) => {
+                if (e.key === 'Enter') login();
+            });
+            document.getElementById('message').addEventListener('keypress', (e) => {
+                if (e.key === 'Enter') sendMessage();
+            });
+        });
+        
+        console.log('App loaded. Supabase URL:', SUPABASE_URL);
     </script>
 </body>
 </html>
