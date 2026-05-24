@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Papan Pesan - Dengan Password</title>
+    <title>Papan Pesan - Seperti WA</title>
     <style>
         * {
             margin: 0;
@@ -11,144 +11,201 @@
             box-sizing: border-box;
         }
         
+        /* ============ DARK MODE VARIABLES ============ */
+        :root {
+            --bg-color: #e8edf2;
+            --card-bg: #ffffff;
+            --header-bg: #00a884;
+            --header-text: #ffffff;
+            --text-primary: #111b21;
+            --text-secondary: #667781;
+            --border-color: #e9edef;
+            --message-bg-sent: #d9fdd3;
+            --message-bg-received: #ffffff;
+            --message-text: #111b21;
+            --time-text: #667781;
+            --input-bg: #ffffff;
+            --input-border: #e9edef;
+            --avatar-bg: #00a884;
+            --tab-active: #00a884;
+            --tab-inactive: #667781;
+            --btn-primary: #00a884;
+            --btn-primary-hover: #008f6e;
+            --scrollbar-track: #f1f1f1;
+            --scrollbar-thumb: #c1c1c1;
+            --shadow: 0 1px 3px rgba(0,0,0,0.1);
+            --bubble-received: #ffffff;
+            --bubble-sent: #d9fdd3;
+        }
+        
+        body.dark {
+            --bg-color: #0a1014;
+            --card-bg: #1e2a32;
+            --header-bg: #0a1014;
+            --header-text: #e9edef;
+            --text-primary: #e9edef;
+            --text-secondary: #8696a0;
+            --border-color: #2a3942;
+            --message-bg-sent: #005c4b;
+            --message-bg-received: #202c33;
+            --message-text: #e9edef;
+            --time-text: #8696a0;
+            --input-bg: #2a3942;
+            --input-border: #2a3942;
+            --avatar-bg: #00a884;
+            --tab-active: #00a884;
+            --tab-inactive: #8696a0;
+            --btn-primary: #00a884;
+            --btn-primary-hover: #008f6e;
+            --scrollbar-track: #2a3942;
+            --scrollbar-thumb: #3b4a54;
+            --shadow: none;
+            --bubble-received: #202c33;
+            --bubble-sent: #005c4b;
+        }
+        
         body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            font-family: 'Segoe UI', 'Helvetica Neue', Helvetica, sans-serif;
+            background: var(--bg-color);
             min-height: 100vh;
-            padding: 20px;
+            transition: all 0.3s ease;
         }
         
         .container {
-            max-width: 800px;
+            max-width: 1000px;
             margin: 0 auto;
+            padding: 20px;
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
         }
         
-        .card {
-            background: white;
-            border-radius: 20px;
-            padding: 30px;
-            box-shadow: 0 20px 60px rgba(0,0,0,0.2);
-            margin-bottom: 20px;
+        /* WhatsApp Style Header */
+        .wa-header {
+            background: var(--header-bg);
+            color: var(--header-text);
+            padding: 15px 20px;
+            border-radius: 15px 15px 0 0;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            box-shadow: var(--shadow);
         }
         
-        .header {
-            text-align: center;
-            margin-bottom: 30px;
+        .wa-header h1 {
+            font-size: 1.3em;
+            font-weight: 500;
+            flex: 1;
         }
         
-        .header h1 {
-            font-size: 2em;
-            color: #333;
-            margin-bottom: 10px;
+        /* Chat Container */
+        .chat-container {
+            background: var(--card-bg);
+            border-radius: 0 0 15px 15px;
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+            box-shadow: var(--shadow);
         }
         
-        .header p {
-            color: #666;
-            font-size: 0.9em;
-        }
-        
-        .user-bar {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            border-radius: 15px;
+        /* User Info Bar */
+        .user-info-bar {
+            background: var(--card-bg);
             padding: 15px 20px;
             display: flex;
             justify-content: space-between;
             align-items: center;
-            margin-bottom: 25px;
-            color: white;
+            border-bottom: 1px solid var(--border-color);
         }
         
-        .user-info {
+        .user-profile {
             display: flex;
             align-items: center;
-            gap: 15px;
+            gap: 12px;
         }
         
         .avatar {
-            width: 50px;
-            height: 50px;
-            background: rgba(255,255,255,0.2);
+            width: 40px;
+            height: 40px;
+            background: var(--avatar-bg);
             border-radius: 50%;
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 24px;
+            font-size: 18px;
             font-weight: bold;
+            color: white;
         }
         
-        .user-details h3 {
-            font-size: 1.1em;
-            margin-bottom: 5px;
+        .user-name {
+            font-weight: 600;
+            color: var(--text-primary);
         }
         
-        .user-details p {
-            font-size: 0.8em;
-            opacity: 0.9;
+        .user-status {
+            font-size: 12px;
+            color: var(--text-secondary);
         }
         
         .logout-btn {
-            background: rgba(255,255,255,0.2);
-            border: 1px solid rgba(255,255,255,0.3);
-            color: white;
-            padding: 8px 20px;
-            border-radius: 25px;
+            background: none;
+            border: none;
+            color: var(--text-secondary);
+            font-size: 20px;
             cursor: pointer;
+            padding: 8px;
+            border-radius: 50%;
             transition: all 0.3s;
-            font-size: 14px;
         }
         
         .logout-btn:hover {
-            background: rgba(255,255,255,0.3);
+            background: var(--border-color);
         }
         
-        .form-group {
-            margin-bottom: 20px;
+        /* Message Input Area */
+        .message-input-area {
+            padding: 15px 20px;
+            background: var(--card-bg);
+            border-top: 1px solid var(--border-color);
+            display: flex;
+            gap: 10px;
+            align-items: flex-end;
         }
         
-        .form-group label {
-            display: block;
-            margin-bottom: 8px;
-            color: #333;
-            font-weight: 500;
-        }
-        
-        .form-group input,
-        .form-group textarea {
-            width: 100%;
-            padding: 15px;
-            border: 2px solid #e0e0e0;
-            border-radius: 12px;
-            font-size: 16px;
-            font-family: inherit;
-            transition: border-color 0.3s;
-        }
-        
-        .form-group input:focus,
-        .form-group textarea:focus {
-            outline: none;
-            border-color: #667eea;
-        }
-        
-        .form-group textarea {
-            resize: vertical;
-        }
-        
-        .btn-kirim {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            color: white;
+        .message-input-area textarea {
+            flex: 1;
+            padding: 12px 15px;
             border: none;
-            padding: 14px 30px;
-            border-radius: 30px;
-            font-size: 16px;
-            font-weight: bold;
+            border-radius: 20px;
+            background: var(--input-bg);
+            color: var(--text-primary);
+            font-size: 14px;
+            font-family: inherit;
+            resize: none;
+            outline: none;
+            max-height: 100px;
+        }
+        
+        /* Tombol Kirim */
+        .btn-kirim {
+            background: var(--btn-primary);
+            border: none;
+            width: 45px;
+            height: 45px;
+            border-radius: 50%;
             cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
             transition: all 0.3s;
-            width: 100%;
+            color: white;
+            position: relative;
         }
         
         .btn-kirim:hover:not(:disabled) {
-            transform: translateY(-2px);
-            box-shadow: 0 5px 20px rgba(102,126,234,0.4);
+            background: var(--btn-primary-hover);
+            transform: scale(1.05);
         }
         
         .btn-kirim:disabled {
@@ -156,163 +213,140 @@
             cursor: not-allowed;
         }
         
-        .btn-refresh {
-            background: #6c757d;
-            color: white;
-            border: none;
-            padding: 10px 20px;
-            border-radius: 25px;
-            cursor: pointer;
-            margin-right: 10px;
-            transition: all 0.3s;
+        /* Loading spinner pada tombol kirim */
+        .btn-kirim.loading {
+            background: var(--btn-primary);
         }
         
-        .btn-refresh:hover:not(:disabled) {
-            background: #5a6268;
+        .btn-kirim.loading .send-icon {
+            display: none;
         }
         
-        .btn-refresh:disabled {
-            opacity: 0.7;
-            cursor: not-allowed;
+        .btn-kirim.loading::after {
+            content: '';
+            width: 20px;
+            height: 20px;
+            border: 2px solid white;
+            border-top: 2px solid transparent;
+            border-radius: 50%;
+            animation: spin 0.8s linear infinite;
+            display: block;
         }
         
-        .btn-hapus-semua {
-            background: #dc3545;
-            color: white;
-            border: none;
-            padding: 10px 20px;
-            border-radius: 25px;
-            cursor: pointer;
-            transition: all 0.3s;
+        .send-icon {
+            font-size: 20px;
         }
         
-        .btn-hapus-semua:hover:not(:disabled) {
-            background: #c82333;
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
         }
         
-        .btn-hapus-semua:disabled {
-            opacity: 0.7;
-            cursor: not-allowed;
-        }
-        
-        .notes-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 20px;
-            padding-bottom: 15px;
-            border-bottom: 2px solid #f0f0f0;
-        }
-        
-        .notes-header h2 {
-            color: #333;
-            font-size: 1.3em;
-        }
-        
-        .notes-header span {
-            background: #667eea;
-            color: white;
-            padding: 5px 12px;
-            border-radius: 20px;
-            font-size: 0.8em;
-        }
-        
-        .notes-list {
-            max-height: 500px;
+        /* Messages List */
+        .messages-list {
+            flex: 1;
             overflow-y: auto;
-        }
-        
-        .note-card {
-            background: #f8f9fa;
-            border-radius: 15px;
-            padding: 18px;
-            margin-bottom: 15px;
-            transition: all 0.3s;
-            border-left: 4px solid #667eea;
-        }
-        
-        .note-card:hover {
-            transform: translateX(5px);
-            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
-        }
-        
-        .note-header {
+            padding: 20px;
             display: flex;
-            justify-content: space-between;
-            align-items: flex-start;
-            margin-bottom: 12px;
-            flex-wrap: wrap;
-            gap: 10px;
+            flex-direction: column;
+            gap: 8px;
+            background: var(--bg-color);
         }
         
-        .sender-info {
+        /* Message Bubble */
+        .message-bubble {
+            max-width: 75%;
+            padding: 8px 12px;
+            border-radius: 12px;
+            position: relative;
+            word-wrap: break-word;
+            box-shadow: var(--shadow);
+        }
+        
+        .message-sent {
+            background: var(--bubble-sent);
+            color: var(--message-text);
+            align-self: flex-end;
+            border-radius: 12px 12px 4px 12px;
+        }
+        
+        .message-received {
+            background: var(--bubble-received);
+            color: var(--message-text);
+            align-self: flex-start;
+            border-radius: 12px 12px 12px 4px;
+        }
+        
+        /* Sender Info dalam message received */
+        .message-sender {
             display: flex;
             align-items: center;
-            gap: 10px;
+            gap: 8px;
+            margin-bottom: 6px;
+            padding-bottom: 4px;
+            border-bottom: 1px solid var(--border-color);
         }
         
         .sender-avatar-small {
-            width: 35px;
-            height: 35px;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            width: 24px;
+            height: 24px;
+            background: var(--avatar-bg);
             border-radius: 50%;
             display: flex;
             align-items: center;
             justify-content: center;
-            color: white;
-            font-weight: bold;
-            font-size: 14px;
-        }
-        
-        .sender-name {
-            font-weight: bold;
-            color: #333;
-        }
-        
-        .sender-id {
             font-size: 11px;
-            color: #999;
+            font-weight: bold;
+            color: white;
+        }
+        
+        .sender-name-small {
+            font-weight: 600;
+            font-size: 12px;
+            color: var(--btn-primary);
+        }
+        
+        .sender-id-small {
+            font-size: 10px;
+            color: var(--text-secondary);
             font-family: monospace;
         }
         
-        .note-time {
-            font-size: 11px;
-            color: #999;
+        .message-text {
+            font-size: 14px;
+            line-height: 1.4;
+            margin-bottom: 5px;
         }
         
-        .note-message {
-            color: #555;
-            line-height: 1.5;
-            margin-bottom: 12px;
-            padding-left: 45px;
+        .message-time {
+            font-size: 10px;
+            color: var(--time-text);
+            text-align: right;
+            margin-top: 4px;
         }
         
-        .delete-btn {
-            background: #dc3545;
-            color: white;
+        .delete-btn-message {
+            background: none;
             border: none;
-            padding: 5px 15px;
-            border-radius: 15px;
+            color: var(--text-secondary);
+            font-size: 11px;
             cursor: pointer;
-            font-size: 12px;
-            margin-left: 45px;
-            transition: all 0.3s;
+            margin-top: 4px;
+            text-align: right;
+            padding: 2px 5px;
+            border-radius: 10px;
         }
         
-        .delete-btn:hover:not(:disabled) {
-            background: #c82333;
-            transform: scale(1.05);
+        .delete-btn-message:hover {
+            background: rgba(220,53,69,0.1);
+            color: var(--delete-btn, #dc3545);
         }
         
-        .delete-btn:disabled {
-            opacity: 0.6;
-            cursor: not-allowed;
-        }
-        
+        /* Empty State */
         .empty-state {
             text-align: center;
-            padding: 50px 20px;
-            color: #999;
+            padding: 50px;
+            color: var(--text-secondary);
         }
         
         .empty-state .emoji {
@@ -320,9 +354,30 @@
             margin-bottom: 15px;
         }
         
-        /* Login Card Styles */
+        /* Scrollbar */
+        .messages-list::-webkit-scrollbar {
+            width: 6px;
+        }
+        
+        .messages-list::-webkit-scrollbar-track {
+            background: var(--scrollbar-track);
+            border-radius: 10px;
+        }
+        
+        .messages-list::-webkit-scrollbar-thumb {
+            background: var(--scrollbar-thumb);
+            border-radius: 10px;
+        }
+        
+        /* Login Card Style */
         .login-card {
+            max-width: 500px;
+            margin: auto;
+            background: var(--card-bg);
+            border-radius: 25px;
+            padding: 40px;
             text-align: center;
+            box-shadow: var(--shadow);
         }
         
         .login-icon {
@@ -330,11 +385,21 @@
             margin-bottom: 20px;
         }
         
+        .login-card h1 {
+            color: var(--text-primary);
+            margin-bottom: 10px;
+        }
+        
+        .login-card p {
+            color: var(--text-secondary);
+            margin-bottom: 30px;
+        }
+        
         .login-tabs {
             display: flex;
             gap: 10px;
-            margin-bottom: 20px;
-            border-bottom: 2px solid #e0e0e0;
+            margin-bottom: 25px;
+            border-bottom: 2px solid var(--border-color);
         }
         
         .tab-btn {
@@ -344,19 +409,14 @@
             border: none;
             font-size: 16px;
             cursor: pointer;
-            color: #666;
+            color: var(--tab-inactive);
             transition: all 0.3s;
-            border-radius: 10px 10px 0 0;
         }
         
         .tab-btn.active {
-            color: #667eea;
-            border-bottom: 3px solid #667eea;
-            font-weight: bold;
-        }
-        
-        .tab-btn:hover:not(.active) {
-            background: #f5f5f5;
+            color: var(--tab-active);
+            border-bottom: 3px solid var(--tab-active);
+            font-weight: 600;
         }
         
         .login-form {
@@ -370,123 +430,91 @@
         
         .login-card input {
             width: 100%;
-            padding: 15px;
-            border: 2px solid #e0e0e0;
+            padding: 14px;
+            border: 1px solid var(--border-color);
             border-radius: 12px;
             font-size: 16px;
             margin-bottom: 15px;
-            transition: border-color 0.3s;
+            background: var(--input-bg);
+            color: var(--text-primary);
+            outline: none;
         }
         
         .login-card input:focus {
-            outline: none;
-            border-color: #667eea;
-        }
-        
-        .login-card input:disabled {
-            background: #f5f5f5;
-            cursor: not-allowed;
+            border-color: var(--btn-primary);
         }
         
         .btn-masuk, .btn-daftar {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            background: var(--btn-primary);
             color: white;
             border: none;
-            padding: 14px 30px;
-            border-radius: 30px;
+            padding: 14px;
+            border-radius: 25px;
             font-size: 16px;
-            font-weight: bold;
+            font-weight: 600;
             cursor: pointer;
             width: 100%;
             transition: all 0.3s;
         }
         
-        .btn-masuk:hover:not(:disabled),
-        .btn-daftar:hover:not(:disabled) {
-            transform: translateY(-2px);
-            box-shadow: 0 5px 20px rgba(102,126,234,0.4);
+        .btn-masuk:hover, .btn-daftar:hover {
+            background: var(--btn-primary-hover);
         }
         
-        .btn-masuk:disabled,
-        .btn-daftar:disabled {
-            opacity: 0.7;
-            cursor: not-allowed;
+        .show-password {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-bottom: 15px;
+            font-size: 13px;
+            color: var(--text-secondary);
+            cursor: pointer;
+        }
+        
+        .show-password input {
+            width: auto;
+            margin-bottom: 0;
+        }
+        
+        .password-hint {
+            font-size: 11px;
+            color: var(--text-secondary);
+            text-align: left;
+            margin-bottom: 15px;
         }
         
         .info-text {
             margin-top: 20px;
             font-size: 12px;
-            color: #999;
+            color: var(--text-secondary);
         }
         
-        .notes-list::-webkit-scrollbar {
-            width: 6px;
+        .error-text {
+            color: #dc3545;
+            font-size: 12px;
+            text-align: left;
+            margin-bottom: 15px;
         }
         
-        .notes-list::-webkit-scrollbar-track {
-            background: #f1f1f1;
-            border-radius: 10px;
-        }
-        
-        .notes-list::-webkit-scrollbar-thumb {
-            background: #667eea;
-            border-radius: 10px;
-        }
-        
+        /* Loading Spinner */
         .loading-spinner {
             text-align: center;
             padding: 40px;
         }
         
         .spinner {
-            width: 50px;
-            height: 50px;
-            margin: 0 auto 15px;
-            border: 4px solid #f3f3f3;
-            border-top: 4px solid #667eea;
+            width: 40px;
+            height: 40px;
+            margin: 0 auto;
+            border: 3px solid var(--border-color);
+            border-top: 3px solid var(--btn-primary);
             border-radius: 50%;
             animation: spin 1s linear infinite;
         }
         
-        .loading-text {
-            color: #999;
-            font-size: 14px;
-        }
-        
-        .btn-loading {
-            position: relative;
-            pointer-events: none;
-            opacity: 0.7;
-        }
-        
-        .btn-loading::after {
-            content: '';
-            position: absolute;
-            width: 20px;
-            height: 20px;
-            top: 50%;
-            right: 20px;
-            transform: translateY(-50%);
-            border: 2px solid white;
-            border-top: 2px solid transparent;
-            border-radius: 50%;
-            animation: spin 0.8s linear infinite;
-        }
-        
-        @keyframes spin {
-            0% { transform: translateY(-50%) rotate(0deg); }
-            100% { transform: translateY(-50%) rotate(360deg); }
-        }
-        
         @keyframes fadeIn {
-            from {
-                opacity: 0;
-                transform: translateY(10px);
-            }
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
         }
         
         .fade-in {
@@ -497,59 +525,71 @@
             padding: 12px;
             border-radius: 10px;
             margin-bottom: 15px;
-            animation: slideDown 0.3s ease;
+            font-size: 14px;
         }
         
         .alert-success {
             background: #d4edda;
             color: #155724;
-            border: 1px solid #c3e6cb;
         }
         
         .alert-error {
             background: #f8d7da;
             color: #721c24;
-            border: 1px solid #f5c6cb;
         }
         
-        @keyframes slideDown {
-            from {
-                opacity: 0;
-                transform: translateY(-10px);
-            }
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
-        }
-        
-        .button-group {
+        .header-actions {
             display: flex;
             gap: 10px;
-            margin-top: 15px;
+            align-items: center;
         }
         
-        .password-hint {
-            font-size: 11px;
-            color: #999;
-            text-align: left;
-            margin-top: -10px;
-            margin-bottom: 15px;
-        }
-        
-        .show-password {
+        /* Tombol di header */
+        .btn-refresh-header, .dark-mode-header {
+            background: none;
+            border: none;
+            color: var(--header-text);
+            font-size: 20px;
+            cursor: pointer;
+            padding: 8px;
+            border-radius: 50%;
             display: flex;
             align-items: center;
-            gap: 8px;
-            margin-bottom: 15px;
-            font-size: 13px;
-            color: #666;
-            cursor: pointer;
+            justify-content: center;
+            transition: all 0.3s;
         }
         
-        .show-password input {
-            width: auto;
-            margin-bottom: 0;
+        .btn-refresh-header:hover, .dark-mode-header:hover {
+            background: rgba(255,255,255,0.2);
+        }
+        
+        /* Loading untuk refresh button */
+        .btn-refresh-header.loading {
+            animation: spin 0.8s linear infinite;
+        }
+        
+        /* Auto refresh indicator */
+        .auto-refresh-indicator {
+            font-size: 11px;
+            color: var(--text-secondary);
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+        
+        .auto-refresh-indicator .dot {
+            width: 8px;
+            height: 8px;
+            background: #4caf50;
+            border-radius: 50%;
+            display: inline-block;
+            animation: pulse 2s infinite;
+        }
+        
+        @keyframes pulse {
+            0% { opacity: 1; }
+            50% { opacity: 0.3; }
+            100% { opacity: 1; }
         }
     </style>
 </head>
@@ -557,11 +597,126 @@
     <div class="container" id="app">
         <div class="loading-spinner">
             <div class="spinner"></div>
-            <div class="loading-text">Memuat aplikasi...</div>
         </div>
     </div>
 
     <script>
+        // ============ VARIABEL AUTO REFRESH ============
+        let autoRefreshInterval = null;
+        const AUTO_REFRESH_DELAY = 5000; // 5 detik
+        
+        // ============ DARK MODE ============
+        function toggleDarkMode() {
+            document.body.classList.toggle('dark');
+            const isDark = document.body.classList.contains('dark');
+            localStorage.setItem('darkMode', isDark);
+            const darkModeBtn = document.getElementById('darkModeHeader');
+            if (darkModeBtn) {
+                darkModeBtn.innerHTML = isDark ? '☀️' : '🌙';
+            }
+        }
+        
+        function loadDarkMode() {
+            const savedDarkMode = localStorage.getItem('darkMode');
+            if (savedDarkMode === 'true') {
+                document.body.classList.add('dark');
+                const darkModeBtn = document.getElementById('darkModeHeader');
+                if (darkModeBtn) darkModeBtn.innerHTML = '☀️';
+            } else {
+                const darkModeBtn = document.getElementById('darkModeHeader');
+                if (darkModeBtn) darkModeBtn.innerHTML = '🌙';
+            }
+        }
+        
+        // ============ AUTO REFRESH FUNCTION ============
+        function startAutoRefresh() {
+            if (autoRefreshInterval) {
+                clearInterval(autoRefreshInterval);
+            }
+            autoRefreshInterval = setInterval(() => {
+                // Hanya refresh jika halaman sedang aktif dan user sudah login
+                if (currentUser && document.visibilityState === 'visible') {
+                    refreshPesanTanpaLoading();
+                }
+            }, AUTO_REFRESH_DELAY);
+        }
+        
+        function stopAutoRefresh() {
+            if (autoRefreshInterval) {
+                clearInterval(autoRefreshInterval);
+                autoRefreshInterval = null;
+            }
+        }
+        
+        // Refresh pesan tanpa loading animation (silent refresh)
+        async function refreshPesanTanpaLoading() {
+            const container = document.getElementById('messagesContainer');
+            if (!container) return;
+            
+            try {
+                const semuaData = await ambilSemuaData();
+                const semuaPesan = semuaData.notes || [];
+                const currentScrollTop = document.querySelector('.messages-list')?.scrollTop;
+                const isScrolledToBottom = isScrolledToBottomFunc();
+                
+                if (semuaPesan.length === 0) {
+                    container.innerHTML = `
+                        <div class="empty-state">
+                            <div class="emoji">💬</div>
+                            <p>Belum ada pesan. Kirim pesan pertama Anda!</p>
+                        </div>
+                    `;
+                    return;
+                }
+                
+                let html = '';
+                for (let pesan of semuaPesan) {
+                    const isOwner = currentUser && pesan.userId === currentUser.id;
+                    const messageClass = isOwner ? 'message-sent' : 'message-received';
+                    
+                    html += `
+                        <div class="message-bubble ${messageClass} fade-in">
+                            ${!isOwner ? `
+                            <div class="message-sender">
+                                <div class="sender-avatar-small">${escapeHtml(pesan.userName.charAt(0).toUpperCase())}</div>
+                                <div>
+                                    <span class="sender-name-small">${escapeHtml(pesan.userName)}</span>
+                                    <span class="sender-id-small"> (ID: ${pesan.userId})</span>
+                                </div>
+                            </div>
+                            ` : ''}
+                            <div class="message-text">${escapeHtml(pesan.pesan)}</div>
+                            <div class="message-time">${pesan.waktu}</div>
+                            ${isOwner ? `<div><button class="delete-btn-message" onclick="hapusPesan(${pesan.id})">🗑️ Hapus</button></div>` : ''}
+                        </div>
+                    `;
+                }
+                
+                const totalSpan = document.getElementById('totalPesan');
+                if (totalSpan) totalSpan.textContent = semuaPesan.length;
+                
+                container.innerHTML = html;
+                
+                // Kembalikan posisi scroll jika sedang tidak di bottom
+                if (!isScrolledToBottom && currentScrollTop) {
+                    const messagesList = document.querySelector('.messages-list');
+                    if (messagesList) messagesList.scrollTop = currentScrollTop;
+                } else if (isScrolledToBottom) {
+                    const messagesList = document.querySelector('.messages-list');
+                    if (messagesList) messagesList.scrollTop = messagesList.scrollHeight;
+                }
+            } catch(error) {
+                console.error('Auto refresh error:', error);
+            }
+        }
+        
+        function isScrolledToBottomFunc() {
+            const messagesList = document.querySelector('.messages-list');
+            if (!messagesList) return true;
+            const threshold = 100; // toleransi 100px
+            return messagesList.scrollHeight - messagesList.scrollTop - messagesList.clientHeight < threshold;
+        }
+        
         // ============ KONFIGURASI JSONBIN ============
         const API_KEY = '$2a$10$mjq9GqT9KPSNzxJcZzHxxO0LSiDadJfU7fWheRcEQ389dEDUetNfG';
         const BIN_ID = '6a11cd4b6610dd3ae892eb77';
@@ -569,18 +724,45 @@
         
         let currentUser = null;
         
-        // Helper function untuk set button loading
-        function setButtonLoading(button, isLoading, originalText) {
-            if (!button) return;
+        // ============ FUNGSI VALIDASI ============
+        function getUsernameError(username) {
+            if (!username) return 'Username harus diisi!';
+            if (username.length < 5) return 'Username minimal 5 karakter!';
+            if (!/^[a-zA-Z0-9]+$/.test(username)) return 'Username hanya boleh huruf dan angka!';
+            return null;
+        }
+        
+        function getPasswordError(password) {
+            if (!password) return 'Password harus diisi!';
+            if (password.length < 8) return 'Password minimal 8 karakter!';
+            if (!/[A-Za-z]/.test(password)) return 'Password harus mengandung huruf!';
+            if (!/[0-9]/.test(password)) return 'Password harus mengandung angka!';
+            return null;
+        }
+        
+        function setKirimButtonLoading(isLoading) {
+            const kirimBtn = document.querySelector('.btn-kirim');
+            if (!kirimBtn) return;
+            
             if (isLoading) {
-                button.disabled = true;
-                button.classList.add('btn-loading');
-                button.dataset.originalText = originalText || button.innerText;
-                button.innerText = 'Memproses...';
+                kirimBtn.disabled = true;
+                kirimBtn.classList.add('loading');
             } else {
-                button.disabled = false;
-                button.classList.remove('btn-loading');
-                button.innerText = button.dataset.originalText || originalText || 'Submit';
+                kirimBtn.disabled = false;
+                kirimBtn.classList.remove('loading');
+            }
+        }
+        
+        function setRefreshButtonLoading(isLoading) {
+            const refreshBtn = document.querySelector('.btn-refresh-header');
+            if (!refreshBtn) return;
+            
+            if (isLoading) {
+                refreshBtn.disabled = true;
+                refreshBtn.classList.add('loading');
+            } else {
+                refreshBtn.disabled = false;
+                refreshBtn.classList.remove('loading');
             }
         }
         
@@ -592,7 +774,6 @@
                 });
                 
                 if (!response.ok) {
-                    console.log('Membuat struktur data baru...');
                     return { users: [], notes: [] };
                 }
                 
@@ -604,7 +785,7 @@
                     notes: data.notes || []
                 };
             } catch(error) {
-                console.error('Error ambil data:', error);
+                console.error('Error:', error);
                 return { users: [], notes: [] };
             }
         }
@@ -625,15 +806,9 @@
                     body: JSON.stringify(dataToSave)
                 });
                 
-                if (!response.ok) {
-                    const errorText = await response.text();
-                    console.error('Response error:', errorText);
-                    return false;
-                }
-                
-                return true;
+                return response.ok;
             } catch(error) {
-                console.error('Error simpan data:', error);
+                console.error('Error:', error);
                 return false;
             }
         }
@@ -649,7 +824,6 @@
             }
         }
         
-        // Fungsi Register (Daftar)
         async function register() {
             const namaInput = document.getElementById('registerNama');
             const passwordInput = document.getElementById('registerPassword');
@@ -658,35 +832,44 @@
             const nama = namaInput?.value.trim();
             const password = passwordInput?.value;
             
-            if (!nama) {
-                alert('Masukkan nama Anda!');
+            const existingError = document.querySelector('.error-text');
+            if (existingError) existingError.remove();
+            
+            const usernameError = getUsernameError(nama);
+            if (usernameError) {
+                const errorDiv = document.createElement('div');
+                errorDiv.className = 'error-text';
+                errorDiv.innerHTML = '⚠️ ' + usernameError;
+                namaInput.parentNode.insertBefore(errorDiv, namaInput.nextSibling);
                 return;
             }
             
-            if (!password || password.length < 4) {
-                alert('Password minimal 4 karakter!');
+            const passwordError = getPasswordError(password);
+            if (passwordError) {
+                const errorDiv = document.createElement('div');
+                errorDiv.className = 'error-text';
+                errorDiv.innerHTML = '⚠️ ' + passwordError;
+                passwordInput.parentNode.insertBefore(errorDiv, passwordInput.nextSibling);
                 return;
             }
             
-            setButtonLoading(daftarBtn, true, 'Daftar');
+            daftarBtn.disabled = true;
+            daftarBtn.textContent = 'Memproses...';
             namaInput.disabled = true;
             passwordInput.disabled = true;
             
             try {
                 const semuaData = await ambilSemuaData();
-                
-                // Cek apakah nama sudah terdaftar
                 const userExists = semuaData.users.find(u => u.nama.toLowerCase() === nama.toLowerCase());
                 if (userExists) {
-                    alert('❌ Nama sudah terdaftar! Silakan login atau gunakan nama lain.');
+                    alert('❌ Nama sudah terdaftar!');
                     return;
                 }
                 
-                // Buat user baru dengan password
                 const user = {
                     id: Date.now(),
                     nama: nama,
-                    password: password, // Simpan password (untuk demo, di real app harus di-hash)
+                    password: password,
                     createdAt: new Date().toLocaleString('id-ID')
                 };
                 
@@ -695,25 +878,22 @@
                 
                 if (berhasil) {
                     alert('✅ Pendaftaran berhasil! Silakan login.');
-                    // Reset form register
                     namaInput.value = '';
                     passwordInput.value = '';
-                    // Pindah ke tab login
                     showLoginTab();
                 } else {
-                    alert('❌ Gagal mendaftar! Coba lagi.');
+                    alert('❌ Gagal mendaftar!');
                 }
             } catch(error) {
-                console.error('Error register:', error);
                 alert('Terjadi kesalahan: ' + error.message);
             } finally {
-                setButtonLoading(daftarBtn, false);
+                daftarBtn.disabled = false;
+                daftarBtn.textContent = '📝 Daftar';
                 namaInput.disabled = false;
                 passwordInput.disabled = false;
             }
         }
         
-        // Fungsi Login
         async function login() {
             const namaInput = document.getElementById('loginNama');
             const passwordInput = document.getElementById('loginPassword');
@@ -722,17 +902,13 @@
             const nama = namaInput?.value.trim();
             const password = passwordInput?.value;
             
-            if (!nama) {
-                alert('Masukkan nama Anda!');
+            if (!nama || !password) {
+                alert('Isi username dan password!');
                 return;
             }
             
-            if (!password) {
-                alert('Masukkan password Anda!');
-                return;
-            }
-            
-            setButtonLoading(loginBtn, true, 'Masuk');
+            loginBtn.disabled = true;
+            loginBtn.textContent = 'Memproses...';
             namaInput.disabled = true;
             passwordInput.disabled = true;
             
@@ -741,21 +917,16 @@
                 const user = semuaData.users.find(u => u.nama.toLowerCase() === nama.toLowerCase());
                 
                 if (!user) {
-                    alert('❌ Nama tidak ditemukan! Silakan daftar terlebih dahulu.');
+                    alert('❌ Username tidak ditemukan!');
                     return;
                 }
                 
-                // Verifikasi password
                 if (user.password !== password) {
-                    alert('❌ Password salah! Coba lagi.');
+                    alert('❌ Password salah!');
                     return;
                 }
-                
-                // Simulasi delay untuk efek loading
-                await new Promise(resolve => setTimeout(resolve, 500));
                 
                 currentUser = user;
-                // Hapus password dari session storage (jangan simpan password di localStorage)
                 const userForStorage = {
                     id: user.id,
                     nama: user.nama,
@@ -764,10 +935,10 @@
                 localStorage.setItem('currentUser', JSON.stringify(userForStorage));
                 tampilkanAplikasi();
             } catch(error) {
-                console.error('Error login:', error);
                 alert('Terjadi kesalahan: ' + error.message);
             } finally {
-                setButtonLoading(loginBtn, false);
+                loginBtn.disabled = false;
+                loginBtn.textContent = '🚀 Masuk';
                 namaInput.disabled = false;
                 passwordInput.disabled = false;
             }
@@ -775,13 +946,13 @@
         
         function logout() {
             if (confirm('Yakin ingin logout?')) {
+                stopAutoRefresh();
                 currentUser = null;
                 localStorage.removeItem('currentUser');
                 tampilkanLogin();
             }
         }
         
-        // Toggle tab login/register
         function showLoginTab() {
             document.getElementById('loginTab')?.classList.add('active');
             document.getElementById('registerTab')?.classList.remove('active');
@@ -798,36 +969,20 @@
         
         function togglePassword(inputId) {
             const input = document.getElementById(inputId);
-            if (input.type === 'password') {
-                input.type = 'text';
-            } else {
-                input.type = 'password';
-            }
+            input.type = input.type === 'password' ? 'text' : 'password';
         }
         
         // ============ FUNGSI CATATAN ============
         async function kirimPesan() {
             const pesanInput = document.getElementById('pesan');
-            const kirimBtn = document.querySelector('.btn-kirim');
-            
-            if (!pesanInput) {
-                alert('Error: Form pesan tidak ditemukan');
-                return;
-            }
-            
-            const pesan = pesanInput.value.trim();
+            const pesan = pesanInput?.value.trim();
             
             if (!pesan) {
-                alert('✏️ Silakan tulis pesan terlebih dahulu!');
+                alert('✏️ Tulis pesan terlebih dahulu!');
                 return;
             }
             
-            if (!currentUser) {
-                alert('❌ Anda belum login!');
-                return;
-            }
-            
-            setButtonLoading(kirimBtn, true, 'Kirim');
+            setKirimButtonLoading(true);
             
             try {
                 const semuaData = await ambilSemuaData();
@@ -838,59 +993,50 @@
                     userName: currentUser.nama,
                     pesan: pesan,
                     waktu: new Date().toLocaleString('id-ID', {
-                        day: '2-digit',
-                        month: '2-digit',
-                        year: 'numeric',
                         hour: '2-digit',
-                        minute: '2-digit'
+                        minute: '2-digit',
+                        day: '2-digit',
+                        month: '2-digit'
                     })
                 };
                 
-                semuaData.notes.unshift(pesanBaru);
-                
+                semuaData.notes.push(pesanBaru);
                 const berhasil = await simpanSemuaData(semuaData);
-                
-                await new Promise(resolve => setTimeout(resolve, 500));
                 
                 if (berhasil) {
                     pesanInput.value = '';
-                    tampilkanPesan('✅ Pesan berhasil dikirim!', 'success');
+                    pesanInput.style.height = 'auto';
                     await tampilkanSemuaPesan();
+                    const messagesList = document.querySelector('.messages-list');
+                    if (messagesList) {
+                        messagesList.scrollTop = messagesList.scrollHeight;
+                    }
                 } else {
-                    alert('❌ Gagal mengirim pesan! Coba lagi.');
+                    alert('❌ Gagal mengirim pesan!');
                 }
             } catch(error) {
-                console.error('Error kirim pesan:', error);
-                alert('❌ Terjadi error: ' + error.message);
+                alert('Error: ' + error.message);
             } finally {
-                setButtonLoading(kirimBtn, false);
+                setKirimButtonLoading(false);
+                pesanInput.focus();
             }
         }
         
         async function tampilkanSemuaPesan() {
-            const container = document.getElementById('notesContainer');
-            const refreshBtn = document.querySelector('.btn-refresh');
-            
+            const container = document.getElementById('messagesContainer');
             if (!container) return;
             
-            container.innerHTML = `
-                <div class="loading-spinner">
-                    <div class="spinner"></div>
-                    <div class="loading-text">Memuat pesan...</div>
-                </div>
-            `;
+            setRefreshButtonLoading(true);
             
-            if (refreshBtn) refreshBtn.disabled = true;
+            container.innerHTML = '<div class="loading-spinner"><div class="spinner"></div></div>';
             
             try {
                 const semuaData = await ambilSemuaData();
                 const semuaPesan = semuaData.notes || [];
                 
-                await new Promise(resolve => setTimeout(resolve, 300));
-                
                 if (semuaPesan.length === 0) {
                     container.innerHTML = `
-                        <div class="empty-state fade-in">
+                        <div class="empty-state">
                             <div class="emoji">💬</div>
                             <p>Belum ada pesan. Kirim pesan pertama Anda!</p>
                         </div>
@@ -901,24 +1047,22 @@
                 let html = '';
                 for (let pesan of semuaPesan) {
                     const isOwner = currentUser && pesan.userId === currentUser.id;
+                    const messageClass = isOwner ? 'message-sent' : 'message-received';
+                    
                     html += `
-                        <div class="note-card fade-in">
-                            <div class="note-header">
-                                <div class="sender-info">
-                                    <div class="sender-avatar-small">
-                                        ${escapeHtml(pesan.userName.charAt(0).toUpperCase())}
-                                    </div>
-                                    <div>
-                                        <div class="sender-name">${escapeHtml(pesan.userName)}</div>
-                                        <div class="sender-id">🆔 ID: ${pesan.userId}</div>
-                                    </div>
+                        <div class="message-bubble ${messageClass} fade-in">
+                            ${!isOwner ? `
+                            <div class="message-sender">
+                                <div class="sender-avatar-small">${escapeHtml(pesan.userName.charAt(0).toUpperCase())}</div>
+                                <div>
+                                    <span class="sender-name-small">${escapeHtml(pesan.userName)}</span>
+                                    <span class="sender-id-small"> (ID: ${pesan.userId})</span>
                                 </div>
-                                <div class="note-time">📅 ${pesan.waktu}</div>
                             </div>
-                            <div class="note-message">
-                                ${escapeHtml(pesan.pesan)}
-                            </div>
-                            ${isOwner ? `<button class="delete-btn" onclick="hapusPesan(${pesan.id})">🗑️ Hapus</button>` : ''}
+                            ` : ''}
+                            <div class="message-text">${escapeHtml(pesan.pesan)}</div>
+                            <div class="message-time">${pesan.waktu}</div>
+                            ${isOwner ? `<div><button class="delete-btn-message" onclick="hapusPesan(${pesan.id})">🗑️ Hapus</button></div>` : ''}
                         </div>
                     `;
                 }
@@ -927,98 +1071,45 @@
                 if (totalSpan) totalSpan.textContent = semuaPesan.length;
                 
                 container.innerHTML = html;
+                
+                const messagesList = document.querySelector('.messages-list');
+                if (messagesList) {
+                    messagesList.scrollTop = messagesList.scrollHeight;
+                }
             } catch(error) {
-                console.error('Error tampilkan pesan:', error);
-                container.innerHTML = `
-                    <div class="alert alert-error fade-in">
-                        ❌ Gagal memuat pesan. Silakan refresh halaman.
-                    </div>
-                `;
+                container.innerHTML = '<div class="alert alert-error">Gagal memuat pesan!</div>';
             } finally {
-                if (refreshBtn) refreshBtn.disabled = false;
+                setRefreshButtonLoading(false);
             }
         }
         
         async function hapusPesan(id) {
-            if (!confirm('Yakin ingin menghapus pesan ini?')) return;
-            
-            const deleteButtons = document.querySelectorAll('.delete-btn');
-            let targetBtn = null;
-            for (let btn of deleteButtons) {
-                if (btn.getAttribute('onclick') === `hapusPesan(${id})`) {
-                    targetBtn = btn;
-                    break;
-                }
-            }
-            
-            if (targetBtn) {
-                targetBtn.disabled = true;
-                targetBtn.innerText = 'Menghapus...';
-            }
+            if (!confirm('Hapus pesan ini?')) return;
             
             try {
                 const semuaData = await ambilSemuaData();
                 semuaData.notes = semuaData.notes.filter(item => item.id !== id);
-                
                 const berhasil = await simpanSemuaData(semuaData);
                 
-                await new Promise(resolve => setTimeout(resolve, 300));
-                
                 if (berhasil) {
-                    tampilkanPesan('✅ Pesan dihapus!', 'success');
                     await tampilkanSemuaPesan();
                 } else {
-                    alert('❌ Gagal menghapus!');
+                    alert('Gagal menghapus!');
                 }
             } catch(error) {
-                console.error('Error hapus pesan:', error);
-                alert('❌ Terjadi error!');
-            } finally {
-                if (targetBtn) {
-                    targetBtn.disabled = false;
-                    targetBtn.innerText = '🗑️ Hapus';
-                }
-            }
-        }
-        
-        async function hapusSemuaPesan() {
-            if (!confirm('⚠️ PERINGATAN: Ini akan menghapus SEMUA pesan dari semua pengguna! Lanjutkan?')) return;
-            
-            const hapusBtn = document.querySelector('.btn-hapus-semua');
-            setButtonLoading(hapusBtn, true, 'Hapus Semua');
-            
-            try {
-                const semuaData = await ambilSemuaData();
-                semuaData.notes = [];
-                
-                const berhasil = await simpanSemuaData(semuaData);
-                
-                await new Promise(resolve => setTimeout(resolve, 500));
-                
-                if (berhasil) {
-                    tampilkanPesan('🗑️ Semua pesan telah dihapus!', 'success');
-                    await tampilkanSemuaPesan();
-                } else {
-                    alert('❌ Gagal menghapus!');
-                }
-            } catch(error) {
-                console.error('Error hapus semua:', error);
-                alert('❌ Terjadi error!');
-            } finally {
-                setButtonLoading(hapusBtn, false);
+                alert('Error: ' + error.message);
             }
         }
         
         // ============ FUNGSI TAMPILAN ============
         function tampilkanLogin() {
+            stopAutoRefresh();
             const app = document.getElementById('app');
             app.innerHTML = `
-                <div class="card login-card fade-in">
-                    <div class="header">
-                        <div class="login-icon">🔐</div>
-                        <h1>Papan Pesan</h1>
-                        <p>Kirim pesan dan lihat pesan dari pengguna lain</p>
-                    </div>
+                <div class="login-card fade-in">
+                    <div class="login-icon">💬</div>
+                    <h1>Papan Pesan</h1>
+                    <p>Kirim pesan seperti WhatsApp</p>
                     
                     <div class="login-tabs">
                         <button class="tab-btn active" id="loginTab" onclick="showLoginTab()">Login</button>
@@ -1026,7 +1117,7 @@
                     </div>
                     
                     <div id="loginForm" class="login-form active">
-                        <input type="text" id="loginNama" placeholder="Nama Anda" autocomplete="off">
+                        <input type="text" id="loginNama" placeholder="Username" autocomplete="off">
                         <input type="password" id="loginPassword" placeholder="Password">
                         <div class="show-password">
                             <input type="checkbox" onclick="togglePassword('loginPassword')">
@@ -1036,100 +1127,103 @@
                     </div>
                     
                     <div id="registerForm" class="login-form">
-                        <input type="text" id="registerNama" placeholder="Nama Anda" autocomplete="off">
-                        <input type="password" id="registerPassword" placeholder="Password (minimal 4 karakter)">
+                        <input type="text" id="registerNama" placeholder="Username (min 5, huruf/angka)" autocomplete="off">
+                        <input type="password" id="registerPassword" placeholder="Password (min 8, huruf+angka)">
                         <div class="show-password">
                             <input type="checkbox" onclick="togglePassword('registerPassword')">
                             <span>Tampilkan password</span>
                         </div>
-                        <div class="password-hint">🔒 Password akan disimpan di server. Gunakan password yang mudah diingat!</div>
+                        <div class="password-hint">🔒 Username min 5 karakter (huruf/angka)<br>🔒 Password min 8 karakter (huruf+angka)</div>
                         <button class="btn-daftar" onclick="register()">📝 Daftar</button>
                     </div>
                     
-                    <div class="info-text">
-                        ✨ Daftar dulu jika belum punya akun<br>
-                        🔐 Login dengan nama dan password yang sudah didaftarkan
-                    </div>
+                    <div class="info-text">✨ Daftar dulu jika belum punya akun</div>
                 </div>
             `;
             
-            setTimeout(() => {
-                const input = document.getElementById('loginNama');
-                if (input) input.focus();
-            }, 100);
+            loadDarkMode();
         }
         
         function tampilkanAplikasi() {
             const app = document.getElementById('app');
             app.innerHTML = `
-                <div class="card fade-in">
-                    <div class="user-bar">
-                        <div class="user-info">
-                            <div class="avatar">${escapeHtml(currentUser.nama.charAt(0).toUpperCase())}</div>
-                            <div class="user-details">
-                                <h3>${escapeHtml(currentUser.nama)}</h3>
-                                <p>🆔 ID: ${currentUser.id}</p>
-                            </div>
+                <div class="wa-header">
+                    <h1>💬 Papan Pesan</h1>
+                    <div class="header-actions">
+                        <div class="auto-refresh-indicator">
+                            <span class="dot"></span>
+                            <span>Auto refresh 5dtk</span>
                         </div>
-                        <button class="logout-btn" onclick="logout()">🚪 Logout</button>
+                        <button class="dark-mode-header" id="darkModeHeader" onclick="toggleDarkMode()">🌙</button>
+                        <button class="btn-refresh-header" onclick="tampilkanSemuaPesan()">🔄</button>
                     </div>
-                    
-                    <div class="form-group">
-                        <label>✏️ Tulis Pesan</label>
-                        <textarea id="pesan" rows="3" placeholder="Tulis pesan atau catatan Anda di sini..."></textarea>
-                    </div>
-                    <button class="btn-kirim" onclick="kirimPesan()">📤 Kirim</button>
                 </div>
                 
-                <div class="card fade-in">
-                    <div class="notes-header">
-                        <h2>💬 Semua Pesan</h2>
-                        <span id="totalPesan">0</span>
-                    </div>
-                    
-                    <div class="button-group">
-                        <button class="btn-refresh" onclick="tampilkanSemuaPesan()">🔄 Refresh</button>
-                        <button class="btn-hapus-semua" onclick="hapusSemuaPesan()">🗑️ Hapus Semua</button>
-                    </div>
-                    
-                    <div id="notesContainer" class="notes-list">
-                        <div class="loading-spinner">
-                            <div class="spinner"></div>
-                            <div class="loading-text">Memuat pesan...</div>
+                <div class="chat-container">
+                    <div class="user-info-bar">
+                        <div class="user-profile">
+                            <div class="avatar">${escapeHtml(currentUser.nama.charAt(0).toUpperCase())}</div>
+                            <div>
+                                <div class="user-name">${escapeHtml(currentUser.nama)}</div>
+                                <div class="user-status">Online • ID: ${currentUser.id}</div>
+                            </div>
                         </div>
+                        <button class="logout-btn" onclick="logout()">🚪</button>
+                    </div>
+                    
+                    <div class="messages-list" id="messagesContainer">
+                        <div class="loading-spinner"><div class="spinner"></div></div>
+                    </div>
+                    
+                    <div class="message-input-area">
+                        <textarea id="pesan" rows="1" placeholder="Ketik pesan..."></textarea>
+                        <button class="btn-kirim" onclick="kirimPesan()">
+                            <span class="send-icon">📤</span>
+                        </button>
                     </div>
                 </div>
             `;
             
+            // Load dark mode state
+            const isDark = localStorage.getItem('darkMode') === 'true';
+            const darkModeBtn = document.getElementById('darkModeHeader');
+            if (darkModeBtn) {
+                darkModeBtn.innerHTML = isDark ? '☀️' : '🌙';
+            }
+            if (isDark) {
+                document.body.classList.add('dark');
+            } else {
+                document.body.classList.remove('dark');
+            }
+            
             tampilkanSemuaPesan();
-        }
-        
-        function tampilkanPesan(pesan, tipe) {
-            const container = document.getElementById('notesContainer');
-            if (!container) return;
             
-            const alertDiv = document.createElement('div');
-            alertDiv.className = `alert alert-${tipe} fade-in`;
-            alertDiv.innerHTML = pesan;
+            // Start auto refresh
+            startAutoRefresh();
             
-            container.insertBefore(alertDiv, container.firstChild);
-            
-            setTimeout(() => {
-                alertDiv.remove();
-            }, 3000);
+            // Auto resize textarea
+            const textarea = document.getElementById('pesan');
+            if (textarea) {
+                textarea.addEventListener('input', function() {
+                    this.style.height = 'auto';
+                    this.style.height = Math.min(this.scrollHeight, 100) + 'px';
+                });
+                textarea.focus();
+            }
         }
         
         function escapeHtml(str) {
             if (!str) return '';
-            return str
-                .replace(/&/g, '&amp;')
-                .replace(/</g, '&lt;')
-                .replace(/>/g, '&gt;')
-                .replace(/"/g, '&quot;')
-                .replace(/'/g, '&#39;');
+            return str.replace(/[&<>]/g, function(m) {
+                if (m === '&') return '&amp;';
+                if (m === '<') return '&lt;';
+                if (m === '>') return '&gt;';
+                return m;
+            });
         }
         
         // Start aplikasi
+        loadDarkMode();
         cekSession();
     </script>
 </body>
